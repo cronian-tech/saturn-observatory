@@ -1,0 +1,7 @@
+services:
+  w3:
+    build: .
+    pull_policy: build
+    volumes:
+      - ./w3-nodejs:/root/.config/w3-nodejs
+      - ../data:/data
