@@ -1,3 +1,6 @@
+duckdb-analytics:
+	docker compose -f duckdb/compose.yaml run -i --rm duckdb
+
 web3-storage-upload:
 	docker compose -f web3-storage/compose.yaml run -i --rm w3 put /data/raw --name saturn-observatory
 

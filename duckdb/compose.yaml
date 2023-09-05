@@ -1,0 +1,8 @@
+services:
+  duckdb:
+    build: .
+    command: -init /analytics.sql -bail -no-stdin
+    pull_policy: build
+    volumes:
+      - ../data:/data
+      - ../analytics.sql:/analytics.sql:ro
