@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <div id="saturn-active-nodes"></div>
+
+    <script type="module">
+        import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm";
+        import "https://cdn.plot.ly/plotly-2.26.0.min.js";
+
+        const text = await d3.text("data/outputs/saturn_active_nodes.csv");
+        const data = d3.csvParseRows(text, (d, i) => {
+            return {
+                date: new Date(d[0]),
+                count: +d[1],
+            }
+        });
+
+        var x = [], y = [];
+        for (var i = 0; i < data.length; i++) {
+            const row = data[i];
+            x.push(row['date']);
+            y.push(row['count']);
+        }
+
+        const element = document.getElementById("saturn-active-nodes");
+        Plotly.newPlot(element, [{
+            x: x,
+            y: y,
+        }]);
+    </script>
+</body>
+
+</html>
