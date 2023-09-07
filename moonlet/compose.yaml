@@ -1,0 +1,12 @@
+services:
+  vm:
+    image: victoriametrics/victoria-metrics:${VM_VERSION}
+    env_file: config.sh
+    ports:
+      - 127.0.0.1:8428:8428/tcp
+    volumes:
+      - vm-data:/victoria-metrics-data
+      - /snapshot
+
+volumes:
+  vm-data:
