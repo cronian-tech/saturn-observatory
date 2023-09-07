@@ -17,7 +17,10 @@ duckdb-analytics:
 	docker compose -f duckdb/compose.yaml run -i --rm duckdb -echo -s $(shell printf %q "`cat analytics.sql`")
 
 web3-storage-upload:
-	docker compose -f web3-storage/compose.yaml run -i --rm w3 put '/data/inputs/year=2023' --name saturn-observatory
+	docker compose -f web3-storage/compose.yaml run -i --rm w3 put $(path) --name saturn-observatory
 
 web3-storage-token:
 	docker compose -f web3-storage/compose.yaml run -i --rm w3 token
+
+web-serve:
+	python -m http.server -d web
