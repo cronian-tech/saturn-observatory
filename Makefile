@@ -11,10 +11,10 @@ bacalhau-analytics:
 	docker run -it --rm ghcr.io/bacalhau-project/bacalhau \
 		docker run --input ipfs://bafybeieslsgz7j3gedlqbi5b5omvkvmshd5fhco6gbuujnxzlbrrmjeo4q \
 		31z4/bacalhau-duckdb:latest -- \
-		./duckdb -init /init.sql -echo -s $(shell printf %q "`cat analytics.sql`")
+		./duckdb -init /init.sql -echo -s $(shell printf %q "`cat analytics.sql`") db
 
 duckdb-analytics:
-	docker compose -f duckdb/compose.yaml run -i --rm duckdb -echo -s $(shell printf %q "`cat analytics.sql`")
+	docker compose -f duckdb/compose.yaml run -i --rm duckdb -echo -s $(shell printf %q "`cat analytics.sql`") db
 
 web3-storage-upload:
 	docker compose -f web3-storage/compose.yaml run -i --rm w3 put $(path) --name saturn-observatory
