@@ -10,12 +10,13 @@
 <body>
     <div id="saturn-active-node"></div>
     <div id="saturn-active-node-age"></div>
+    <div id="saturn-active-node-by-country"></div>
 
     <script type="module">
         import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm";
         import "https://cdn.plot.ly/plotly-2.26.0.min.js";
 
-        const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeibstfw2ri5vhgead6mdtsqllm4pzha3wg3rh34a3pjx7gjulxwihe/year=2023/month=8";
+        const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeieh3yajbl3gfhbgpfdb2mbmturhovrxvwakiz63bmgl2dh2dhlanq/year=2023/month=8";
 
         // Plot the number of active Saturn nodes over time.
         let text = await d3.text(DATA_BASE_URL + "/saturn_active_node.csv");
@@ -23,7 +24,7 @@
             return {
                 date: new Date(d[0]),
                 count: +d[1],
-            }
+            };
         });
 
         let x = [], y = [];
@@ -42,7 +43,7 @@
         // Plot Saturn active node age historgram.
         text = await d3.text(DATA_BASE_URL + "/saturn_active_node_age.csv");
         data = d3.csvParseRows(text, (d, i) => {
-            return +d[1]
+            return +d[1];
         });
 
         element = document.getElementById("saturn-active-node-age");
@@ -50,6 +51,34 @@
             x: data,
             type: 'histogram',
         }]);
+
+        // Plot the number of active Saturn nodes by country.
+        text = await d3.text(DATA_BASE_URL + "/saturn_active_node_by_country.csv");
+        data = d3.csvParseRows(text, (d, i) => {
+            return {
+                country: d[0],
+                count: +d[1],
+            };
+        });
+
+        let locations = [], z = [];
+        for (let i = 0; i < data.length; i++) {
+            const row = data[i];
+            locations.push(row['country']);
+            z.push(row['count']);
+        }
+
+        data = [{
+            type: "choropleth",
+            locationmode: "country names",
+            locations: locations,
+            z: z,
+            colorscale: "Blues",
+            reversescale: true,
+        }];
+
+        element = document.getElementById("saturn-active-node-by-country");
+        Plotly.newPlot(element, data);
     </script>
 </body>
 
