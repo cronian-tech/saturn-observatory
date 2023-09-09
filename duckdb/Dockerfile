@@ -14,4 +14,4 @@ RUN set -eux; \
     wget https://github.com/duckdb/duckdb/releases/download/v0.8.1/duckdb_cli-linux-aarch64.zip; \
     unzip duckdb_cli-linux-aarch64.zip
 
-ENTRYPOINT ["./duckdb"]
+ENTRYPOINT ["/duckdb"]
