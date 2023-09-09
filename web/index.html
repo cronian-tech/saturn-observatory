@@ -8,31 +8,47 @@
 </head>
 
 <body>
-    <div id="saturn-active-nodes"></div>
+    <div id="saturn-active-node"></div>
+    <div id="saturn-active-node-age"></div>
 
     <script type="module">
         import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm";
         import "https://cdn.plot.ly/plotly-2.26.0.min.js";
 
-        const text = await d3.text("https://ipfs.io/ipfs/bafybeid72fofzmgueg6burlvqpo747rmhnwwzdquguxvvrtahngdvkyx3q/outputs/saturn_active_nodes.csv");
-        const data = d3.csvParseRows(text, (d, i) => {
+        const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeibstfw2ri5vhgead6mdtsqllm4pzha3wg3rh34a3pjx7gjulxwihe/year=2023/month=8";
+
+        // Plot the number of active Saturn nodes over time.
+        let text = await d3.text(DATA_BASE_URL + "/saturn_active_node.csv");
+        let data = d3.csvParseRows(text, (d, i) => {
             return {
                 date: new Date(d[0]),
                 count: +d[1],
             }
         });
 
-        var x = [], y = [];
-        for (var i = 0; i < data.length; i++) {
+        let x = [], y = [];
+        for (let i = 0; i < data.length; i++) {
             const row = data[i];
             x.push(row['date']);
             y.push(row['count']);
         }
 
-        const element = document.getElementById("saturn-active-nodes");
+        let element = document.getElementById("saturn-active-node");
         Plotly.newPlot(element, [{
             x: x,
             y: y,
+        }]);
+
+        // Plot Saturn active node age historgram.
+        text = await d3.text(DATA_BASE_URL + "/saturn_active_node_age.csv");
+        data = d3.csvParseRows(text, (d, i) => {
+            return +d[1]
+        });
+
+        element = document.getElementById("saturn-active-node-age");
+        Plotly.newPlot(element, [{
+            x: data,
+            type: 'histogram',
         }]);
     </script>
 </body>

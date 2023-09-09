@@ -30,4 +30,4 @@ web3-storage-token:
 		w3 token
 
 web-serve:
-	python -m http.server -d web
+	python3 -m http.server -d web
