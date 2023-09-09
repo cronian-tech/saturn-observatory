@@ -6,6 +6,10 @@ set -e
 # See https://duckdb.org/docs/data/partitioning/hive_partitioning#hive-partitioning
 DATA_DIR='data/inputs/year=2023/month=8'
 
+# This script assumes that VictoriaMetrics container is already running.
+# If it's not start it with the following command:
+# docker compose -f moonlet/compose.yaml up -d
+
 function export {
     local METRIC_NAME=${1}
     local METRIC_FORMAT=${2}

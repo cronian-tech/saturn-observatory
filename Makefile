@@ -9,18 +9,25 @@ bacalhau-push:
 
 bacalhau-analytics:
 	docker run -it --rm ghcr.io/bacalhau-project/bacalhau \
-		docker run --input ipfs://bafybeieslsgz7j3gedlqbi5b5omvkvmshd5fhco6gbuujnxzlbrrmjeo4q \
-		31z4/bacalhau-duckdb:latest -- \
+		docker run --input ipfs://bafybeif22deti6frwuqi52doi3q2kbyzdux67azeufdlqsc25bskvbuzoe \
+		31z4/bacalhau-duckdb:${BACALHAU_DUCKDB_VER} -- \
 		./duckdb -init /init.sql -echo -s $(shell printf %q "`cat analytics.sql`") db
 
 duckdb-analytics:
-	docker compose -f duckdb/compose.yaml run -i --rm duckdb -echo -s $(shell printf %q "`cat analytics.sql`") db
+	docker compose -f duckdb/compose.yaml run -i --rm \
+		duckdb -echo -s $(shell printf %q "`cat analytics.sql`") db
 
-web3-storage-upload:
-	docker compose -f web3-storage/compose.yaml run -i --rm w3 put $(path) --name saturn-observatory
+web3-storage-upload-inputs:
+	docker compose -f web3-storage/compose.yaml run -i --rm \
+		w3 put data/inputs/year=2023 --name saturn-observatory-inputs-$(shell date +%Y%m%d-%H%M%S)
+
+web3-storage-upload-outputs:
+	docker compose -f web3-storage/compose.yaml run -i --rm \
+		w3 put data/outputs/year=2023 --name saturn-observatory-outputs-$(shell date +%Y%m%d-%H%M%S)
 
 web3-storage-token:
-	docker compose -f web3-storage/compose.yaml run -i --rm w3 token
+	docker compose -f web3-storage/compose.yaml run -i --rm \
+		w3 token
 
 web-serve:
 	python -m http.server -d web

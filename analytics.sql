@@ -1,5 +1,5 @@
-CREATE TABLE saturn_node_info AS FROM '/inputs/year=2023/month=8/saturn_node_info.csv.gz';
-CREATE TABLE saturn_node_creation AS FROM '/inputs/year=2023/month=8/saturn_node_creation_timestamp.csv.gz';
+CREATE TABLE saturn_node_info AS FROM '/inputs/saturn_node_info.csv.gz';
+CREATE TABLE saturn_node_creation AS FROM '/inputs/saturn_node_creation_timestamp.csv.gz';
 
 COPY (
     SELECT
@@ -8,8 +8,8 @@ COPY (
     FROM saturn_node_info
     WHERE state = 'active'
     GROUP BY observed_at
-    ORDER BY observed_at
-) TO '/outputs/saturn_active_nodes.csv';
+    ORDER BY observed_at -- Ordering is required for deterministic results.
+) TO '/outputs/saturn_active_node.csv';
 
 COPY (
     SELECT
@@ -26,5 +26,5 @@ COPY (
         GROUP BY node_id
     ) t2
     WHERE t1.node_id = t2.node_id
-    ORDER BY age_days
+    ORDER BY age_days -- Ordering is required for deterministic results.
 ) TO '/outputs/saturn_active_node_age.csv';
