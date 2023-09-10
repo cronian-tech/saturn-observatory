@@ -11,6 +11,7 @@
     <div id="saturn-active-node"></div>
     <div id="saturn-active-node-age"></div>
     <div id="saturn-active-node-by-country"></div>
+    <div id="saturn-served-countries"></div>
 
     <script type="module">
         import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm";
@@ -61,6 +62,11 @@
             };
         });
 
+        // Order data by descending count.
+        data.sort((a, b) => {
+            return b.count - a.count;
+        });
+
         let locations = [], z = [];
         for (let i = 0; i < data.length; i++) {
             const row = data[i];
@@ -68,7 +74,7 @@
             z.push(row['count']);
         }
 
-        data = [{
+        let traces = [{
             type: "choropleth",
             locationmode: "country names",
             locations: locations,
@@ -78,7 +84,36 @@
         }];
 
         element = document.getElementById("saturn-active-node-by-country");
-        Plotly.newPlot(element, data);
+        Plotly.newPlot(element, traces);
+
+        // Plot the most and the least served countries.
+        const top = {
+            type: 'bar',
+            x: z.slice(0, 20).reverse(),
+            y: locations.slice(0, 20).reverse(),
+            orientation: 'h',
+        };
+
+        const bottom = {
+            type: 'bar',
+            x: z.slice(-20),
+            y: locations.slice(-20),
+            xaxis: 'x2',
+            yaxis: 'y2',
+            orientation: 'h',
+        };
+
+        traces = [top, bottom];
+        const layout = {
+            grid: {
+                rows: 1,
+                columns: 2,
+                pattern: 'independent',
+            }
+        };
+
+        element = document.getElementById("saturn-served-countries");
+        Plotly.newPlot(element, traces, layout);
     </script>
 </body>
 
