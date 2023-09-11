@@ -2,8 +2,6 @@
 
 set -e
 
-source "$(dirname "$0")/config.sh"
-
 # This script assumes that VictoriaMetrics container is already running.
 # If it's not start it with the following command:
 # docker compose -f moonlet/compose.yaml up -d
@@ -13,7 +11,7 @@ docker run --rm --volumes-from moonlet-vm-1 -w /snapshot -v "$(pwd)/snapshot.tar
     tar -xzf /snapshot.tar.gz --strip 1
 
 # Import the snapshot into VictoriaMetrics.
-docker run --rm -it --volumes-from moonlet-vm-1 --network container:moonlet-vm-1 victoriametrics/vmctl:${VM_VERSION} \
+docker run --rm -it --volumes-from moonlet-vm-1 --network container:moonlet-vm-1 victoriametrics/vmctl:v1.93.3 \
     prometheus \
     --prom-snapshot /snapshot \
     --prom-filter-time-start=2023-08-01T00:00:00Z \
