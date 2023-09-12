@@ -15,4 +15,4 @@ docker run --rm -it --volumes-from moonlet-vm-1 --network container:moonlet-vm-1
     prometheus \
     --prom-snapshot /snapshot \
     --prom-filter-time-start=2023-08-01T00:00:00Z \
-    --prom-filter-time-end=2023-08-31T00:00:00Z
+    --prom-filter-time-end=2023-09-01T00:00:00Z

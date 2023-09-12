@@ -17,13 +17,13 @@ function curl_export {
     local METRIC_FORMAT=${2}
     local CSV_HEADER=${3}
 
-    curl --create-dirs http://localhost:8428/api/v1/export/csv \
-        -o "${DATA_DIR}/${METRIC_NAME}.csv" \
-        -d "format=${METRIC_FORMAT}" \
-        -d "match[]=${METRIC_NAME}"
+    echo "${CSV_HEADER}" > "${DATA_DIR}/${METRIC_NAME}.csv"
 
-    # Add header and gzip.
-    sed -i '' -e "1s/^/${CSV_HEADER}\n/" "${DATA_DIR}/${METRIC_NAME}.csv"
+    curl http://localhost:8428/api/v1/export/csv \
+        -d "format=${METRIC_FORMAT}" \
+        -d "match[]=${METRIC_NAME}" \
+    >> "${DATA_DIR}/${METRIC_NAME}.csv"
+
     gzip "${DATA_DIR}/${METRIC_NAME}.csv"
 }
 
@@ -32,16 +32,18 @@ function python_export {
     local METRIC_QUERY=${2}
     local CSV_HEADER=${3}
 
+    echo "${CSV_HEADER}" > "${DATA_DIR}/${METRIC_NAME}.csv"
+
     python3 "${SCRIPT_DIR}/export.py" \
         "${METRIC_QUERY}" \
         "2023-08-01T00:00:00Z" \
-        "2023-08-31T00:00:00Z" \
+        "2023-09-01T00:00:00Z" \
         "${DATA_DIR}/${METRIC_NAME}.csv"
 
-    # Add header and gzip.
-    sed -i '' -e "1s/^/${CSV_HEADER}\n/" "${DATA_DIR}/${METRIC_NAME}.csv"
     gzip "${DATA_DIR}/${METRIC_NAME}.csv"
 }
+
+mkdir -p "${DATA_DIR}"
 
 curl_export 'saturn_node_info' \
     '__timestamp__:rfc3339,id,state,core,ip_address,sunrise,cassini,geoloc_region,geoloc_city,geoloc_country,geoloc_country_code,sppedtest_isp,sppedtest_server_location,sppedtest_server_country' \

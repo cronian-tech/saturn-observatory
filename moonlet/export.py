@@ -6,15 +6,15 @@ from urllib import request
 
 API_URL = "http://localhost:8428/api/v1/query_range"
 
-# 30m is the best step for the metrics that this script is assumed to be working with:
+# 60m is the best step for the metrics that this script is assumed to be working with:
 # - saturn_node_bandwidth_served_bytes_total
 # - saturn_node_retrievals_total
 # - saturn_node_estimated_earnings_fil_total
 #
-# Intervals higher than 30m will result in less accurate metric values.
-# Intervals lower than 30m doesn't make sense because changes
-# in the exported metrics observed every 30m.
-QUERY_STEP = "30m"
+# Intervals higher than 60m will result in less accurate metric values.
+# Intervals lower than 60m doesn't make sense because changes
+# in the exported metrics observed every hour.
+QUERY_STEP = "60m"
 
 
 def query_url(query, start, end):
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     with request.urlopen(query_url(query, start, end)) as response:
         response = json.loads(response.read())
 
-        with open(output_path, "w") as f:
+        with open(output_path, "a") as f:
             w = csv.writer(f)
 
             for r in response["data"]["result"]:
