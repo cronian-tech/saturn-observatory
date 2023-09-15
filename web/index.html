@@ -18,7 +18,7 @@
         import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm";
         import "https://cdn.plot.ly/plotly-2.26.0.min.js";
 
-        const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeierkeh5iha6vqnzix6nkc6vvmbkhjh7xixg3bkdjwgecvygayzvie/year=2023/month=8";
+        const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeicxvnbzgmry36crdhasjg57r6uz6ubxreijvven6jhjrfkslsyyl4/year=2023/month=8";
 
         // Plot the number of active Saturn nodes over time.
         let text = await d3.text(DATA_BASE_URL + "/saturn_active_node.csv");
@@ -43,14 +43,24 @@
         }]);
 
         // Plot Saturn active node age historgram.
-        text = await d3.text(DATA_BASE_URL + "/saturn_active_node_age.csv");
-        data = d3.csvParseRows(text, (d, i) => {
-            return +d[1];
+        text = await d3.text(DATA_BASE_URL + "/saturn_active_node_stats.csv");
+        const node_stats = d3.csvParseRows(text, (d, i) => {
+            return {
+                id: d[0],
+                age_days: +d[1],
+                estimated_earnings_fil: +d[2],
+                bandwidth_served_bytes: +d[3],
+            };
         });
+
+        x = [];
+        for (let i = 0; i < node_stats.length; i++) {
+            x.push(node_stats[i]['age_days']);
+        }
 
         element = document.getElementById("saturn-active-node-age");
         Plotly.newPlot(element, [{
-            x: data,
+            x: x,
             type: 'histogram',
         }]);
 
@@ -117,50 +127,46 @@
         Plotly.newPlot(element, traces, layout);
 
         // Plot earnings and traffic distribution (x percent of nodes receive y percent of traffic).
-        text = await d3.text(DATA_BASE_URL + "/saturn_active_node_estimated_earnings.csv");
-        let earnings_total = 0
-        data = d3.csvParseRows(text, (d, i) => {
-            const earnings = +d[1]
-            earnings_total += earnings;
-            return earnings;
-        });
+        let earnings_total = 0, bandwidth_total = 0;
+        let earnings_data = [], bandwidth_data = [];
+        for (let i = 0; i < node_stats.length; i++) {
+            const row = node_stats[i];
+            const earnings = +row['estimated_earnings_fil'];
+            const bandwith = +row['bandwidth_served_bytes']
 
-        // Order data in descending order.
-        data.sort((a, b) => {
+            earnings_total += earnings;
+            bandwidth_total += bandwith;
+
+            earnings_data.push(earnings);
+            bandwidth_data.push(bandwith);
+        }
+
+        // Sort earnings and bandwidth in descending order.
+        earnings_data.sort((a, b) => {
+            return b - a;
+        });
+        bandwidth_data.sort((a, b) => {
             return b - a;
         });
 
         x = [], y = [];
         let earnings_sum = 0;
-        for (let i = 0; i < data.length; i++) {
-            const node_percent = (i / data.length) * 100;
+        for (let i = 0; i < earnings_data.length; i++) {
+            const node_percent = (i / earnings_data.length) * 100;
             x.push(node_percent);
 
-            earnings_sum += data[i];
+            earnings_sum += earnings_data[i];
             const earnings_percent = (earnings_sum / earnings_total) * 100;
             y.push(earnings_percent);
         }
 
-        text = await d3.text(DATA_BASE_URL + "/saturn_active_node_bandwidth_served.csv");
-        let bandwidth_total = 0
-        data = d3.csvParseRows(text, (d, i) => {
-            const bandwith = +d[1]
-            bandwidth_total += bandwith;
-            return bandwith;
-        });
-
-        // Order data in descending order.
-        data.sort((a, b) => {
-            return b - a;
-        });
-
         let x1 = [], y1 = [];
         let bandwith_sum = 0;
-        for (let i = 0; i < data.length; i++) {
-            const node_percent = (i / data.length) * 100;
+        for (let i = 0; i < bandwidth_data.length; i++) {
+            const node_percent = (i / bandwidth_data.length) * 100;
             x1.push(node_percent);
 
-            bandwith_sum += data[i];
+            bandwith_sum += bandwidth_data[i];
             const bandwidth_percent = (bandwith_sum / bandwidth_total) * 100;
             y1.push(bandwidth_percent);
         }
