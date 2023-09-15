@@ -12,12 +12,13 @@
     <div id="saturn-active-node-age"></div>
     <div id="saturn-active-node-by-country"></div>
     <div id="saturn-served-countries"></div>
+    <div id="saturn-active-node-bandwidth-served"></div>
 
     <script type="module">
         import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm";
         import "https://cdn.plot.ly/plotly-2.26.0.min.js";
 
-        const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeieh3yajbl3gfhbgpfdb2mbmturhovrxvwakiz63bmgl2dh2dhlanq/year=2023/month=8";
+        const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeierkeh5iha6vqnzix6nkc6vvmbkhjh7xixg3bkdjwgecvygayzvie/year=2023/month=8";
 
         // Plot the number of active Saturn nodes over time.
         let text = await d3.text(DATA_BASE_URL + "/saturn_active_node.csv");
@@ -114,6 +115,61 @@
 
         element = document.getElementById("saturn-served-countries");
         Plotly.newPlot(element, traces, layout);
+
+        // Plot earnings and traffic distribution (x percent of nodes receive y percent of traffic).
+        text = await d3.text(DATA_BASE_URL + "/saturn_active_node_estimated_earnings.csv");
+        let earnings_total = 0
+        data = d3.csvParseRows(text, (d, i) => {
+            const earnings = +d[1]
+            earnings_total += earnings;
+            return earnings;
+        });
+
+        // Order data in descending order.
+        data.sort((a, b) => {
+            return b - a;
+        });
+
+        x = [], y = [];
+        let earnings_sum = 0;
+        for (let i = 0; i < data.length; i++) {
+            const node_percent = (i / data.length) * 100;
+            x.push(node_percent);
+
+            earnings_sum += data[i];
+            const earnings_percent = (earnings_sum / earnings_total) * 100;
+            y.push(earnings_percent);
+        }
+
+        text = await d3.text(DATA_BASE_URL + "/saturn_active_node_bandwidth_served.csv");
+        let bandwidth_total = 0
+        data = d3.csvParseRows(text, (d, i) => {
+            const bandwith = +d[1]
+            bandwidth_total += bandwith;
+            return bandwith;
+        });
+
+        // Order data in descending order.
+        data.sort((a, b) => {
+            return b - a;
+        });
+
+        let x1 = [], y1 = [];
+        let bandwith_sum = 0;
+        for (let i = 0; i < data.length; i++) {
+            const node_percent = (i / data.length) * 100;
+            x1.push(node_percent);
+
+            bandwith_sum += data[i];
+            const bandwidth_percent = (bandwith_sum / bandwidth_total) * 100;
+            y1.push(bandwidth_percent);
+        }
+
+        element = document.getElementById("saturn-active-node-bandwidth-served");
+        Plotly.newPlot(element, [
+            { x: x, y: y },
+            { x: x1, y: y1 },
+        ]);
     </script>
 </body>
 
