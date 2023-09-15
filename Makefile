@@ -9,7 +9,7 @@ bacalhau-push:
 
 bacalhau-analytics:
 	docker run -it --rm ghcr.io/bacalhau-project/bacalhau \
-		docker run --input ipfs://bafybeif22deti6frwuqi52doi3q2kbyzdux67azeufdlqsc25bskvbuzoe \
+		docker run --input ipfs://bafybeigg47cfb6ntyplz2oypkned3jfsp26reqdmpmzfvi6aipdxlsgla4 \
 		31z4/bacalhau-duckdb:${BACALHAU_DUCKDB_VER} -- \
 		./duckdb -init /init.sql -echo -s $(shell printf %q "`cat analytics.sql`") db
 
