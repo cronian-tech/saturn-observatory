@@ -10,6 +10,7 @@
 <body>
     <div id="saturn-active-node"></div>
     <div id="saturn-active-node-age"></div>
+    <div id="saturn-node-age-and-earnings"></div>
     <div id="saturn-active-node-by-country"></div>
     <div id="saturn-served-countries"></div>
     <div id="saturn-active-node-bandwidth-served"></div>
@@ -115,7 +116,7 @@
         };
 
         traces = [top, bottom];
-        const layout = {
+        let layout = {
             grid: {
                 rows: 1,
                 columns: 2,
@@ -132,7 +133,7 @@
         for (let i = 0; i < node_stats.length; i++) {
             const row = node_stats[i];
             const earnings = +row['estimated_earnings_fil'];
-            const bandwith = +row['bandwidth_served_bytes']
+            const bandwith = +row['bandwidth_served_bytes'];
 
             earnings_total += earnings;
             bandwidth_total += bandwith;
@@ -176,6 +177,44 @@
             { x: x, y: y },
             { x: x1, y: y1 },
         ]);
+
+        // Plot correlation between node age and earnings.
+        x = [], y = [], y1 = [];
+        for (let i = 0; i < node_stats.length; i++) {
+            const row = node_stats[i];
+            const age = +row['age_days']
+            const earnings = +row['estimated_earnings_fil'];
+            const bandwith = +row['bandwidth_served_bytes']
+
+            x.push(age);
+            y.push(earnings);
+            y1.push(bandwith);
+        }
+
+        traces = [{
+            x: x,
+            y: y,
+            mode: 'markers',
+            type: 'scatter'
+        }, {
+            x: x,
+            y: y1,
+            xaxis: 'x2',
+            yaxis: 'y2',
+            mode: 'markers',
+            type: 'scatter'
+        }];
+
+        layout = {
+            grid: {
+                rows: 1,
+                columns: 2,
+                pattern: 'independent',
+            }
+        };
+
+        element = document.getElementById("saturn-node-age-and-earnings");
+        Plotly.newPlot(element, traces, layout);
     </script>
 </body>
 
