@@ -24,16 +24,67 @@ COPY (
     ORDER BY observed_at -- Ordering is required for deterministic results.
 ) TO '/outputs/saturn_traffic.csv';
 
--- Returns the number of active nodes by country.
+-- Calculate traffic served per node.
+CREATE TEMP VIEW bandwidth_served_by_node AS
+SELECT
+    node_id,
+    sum(bandwidth_served_bytes) as bandwidth_served_bytes
+FROM saturn_node_bandwidth_served
+GROUP BY node_id;
+
+-- Calculate estimated earnings per node.
+CREATE TEMP VIEW estimated_earnings_by_node AS
+SELECT
+    node_id,
+    sum(estimated_earnings_fil) as estimated_earnings_fil
+FROM saturn_node_estimated_earnings
+-- Earnings on 2023-08-01 looks abnormally high. Need to figure out this later.
+WHERE observed_at >= '2023-08-02'
+GROUP BY node_id;
+
+-- Return the number of active nodes, estimated earnings and traffic by country.
 COPY (
+    WITH
+    -- For every node return its country.
+    node_country AS (
+        SELECT
+            node_id,
+            -- There's a little chance that some nodes changed their location.
+            -- But we simply ignore it by taking any known location of a node.
+            any_value(geoloc_country) as geoloc_country
+        FROM saturn_node_info
+        GROUP BY node_id
+    ),
+    -- Return the number of active nodes by country.
+    active_nodes AS (
+        SELECT
+            geoloc_country,
+            count(DISTINCT node_id) as active_node_count
+        FROM saturn_node_info
+        WHERE state = 'active'
+        GROUP BY geoloc_country
+    ),
+    -- Return estimated earnings and traffic by country.
+    country_stats AS (
+        SELECT
+            geoloc_country,
+            sum(estimated_earnings_fil) as estimated_earnings_fil,
+            sum(bandwidth_served_bytes) as bandwidth_served_bytes
+        FROM node_country
+        LEFT OUTER JOIN estimated_earnings_by_node USING (node_id)
+        LEFT OUTER JOIN bandwidth_served_by_node USING (node_id)
+        GROUP BY geoloc_country
+    )
+    -- Join estimated earnings and traffic with active node count.
     SELECT
         geoloc_country,
-        count(DISTINCT node_id)
-    FROM saturn_node_info
-    WHERE state = 'active'
-    GROUP BY geoloc_country
+        active_node_count,
+        estimated_earnings_fil,
+        bandwidth_served_bytes
+    FROM country_stats
+    JOIN active_nodes USING (geoloc_country)
     ORDER BY geoloc_country -- Ordering is required for deterministic results.
-) TO '/outputs/saturn_active_node_by_country.csv';
+) TO '/outputs/saturn_country_stats.csv';
 
 -- For every active node return various calculated stats.
 COPY (
@@ -69,24 +120,6 @@ COPY (
         SELECT DISTINCT node_id
         FROM saturn_node_info
         WHERE state = 'active'
-    ),
-    -- Calculate estimated earnings per node.
-    node_estimated_earnings AS (
-        SELECT
-            node_id,
-            sum(estimated_earnings_fil) as estimated_earnings_fil
-        FROM saturn_node_estimated_earnings
-        -- Earnings on 2023-08-01 looks abnormally high. Need to figure out this later.
-        WHERE observed_at >= '2023-08-02'
-        GROUP BY node_id
-    ),
-    -- Calculate traffic served per node.
-    node_bandwidth_served AS (
-        SELECT
-            node_id,
-            sum(bandwidth_served_bytes) as bandwidth_served_bytes
-        FROM saturn_node_bandwidth_served
-        GROUP BY node_id
     )
     -- Final join.
     SELECT
@@ -96,7 +129,7 @@ COPY (
         coalesce(bandwidth_served_bytes, 0) as bandwidth_served_bytes,
     FROM active_node
     JOIN node_age USING (node_id)
-    LEFT OUTER JOIN node_estimated_earnings USING (node_id)
-    LEFT OUTER JOIN node_bandwidth_served USING (node_id)
+    LEFT OUTER JOIN estimated_earnings_by_node USING (node_id)
+    LEFT OUTER JOIN bandwidth_served_by_node USING (node_id)
     ORDER BY node_id -- Ordering is required for deterministic results.
 ) TO '/outputs/saturn_active_node_stats.csv';

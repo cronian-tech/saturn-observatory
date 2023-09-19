@@ -1,7 +1,7 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm";
 import "https://cdn.plot.ly/plotly-2.26.0.min.js";
 
-const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeifm4hdjmahg2exxeiqdacg6akd27uazk622xbwgq2athhvh2vnbwm/year=2023/month=8";
+const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeibk6ob5meok5567wjcnodlzbmqjutguxqzulscqobejtevl7velnq/year=2023/month=8";
 
 function parseActiveNode(text) {
     return d3.csvParseRows(text, (d, i) => {
@@ -23,11 +23,13 @@ function parseActiveNodeStats(text) {
     });
 }
 
-function parseActiveNodeByCountry(text) {
+function parseCountryStats(text) {
     return d3.csvParseRows(text, (d, i) => {
         return {
             country: d[0],
-            count: +d[1],
+            active_node_count: +d[1],
+            estimated_earnings_fil: +d[2],
+            bandwidth_served_bytes: +d[3],
         };
     });
 }
@@ -128,7 +130,7 @@ function plotActiveNodeByCountry(data) {
 
     data.forEach((e) => {
         locations.push(e['country']);
-        z.push(e['count']);
+        z.push(e['active_node_count']);
     });
 
     const traces = [{
@@ -148,14 +150,14 @@ function plotActiveNodeByCountry(data) {
 function plotServedCountries(data) {
     // Order data by descending count.
     const sorted = Array.from(data).sort((a, b) => {
-        return b.count - a.count;
+        return b.active_node_count - a.active_node_count;
     });
 
     const locations = [], z = [];
 
     sorted.forEach((e) => {
-        locations.push(e['country']);
-        z.push(e['count']);
+        locations.push(e.country);
+        z.push(e.active_node_count);
     });
 
     const top = {
@@ -243,18 +245,18 @@ function plotActiveNodeDistribution(data) {
 const text = await Promise.all([
     d3.text(DATA_BASE_URL + "/saturn_active_node.csv"),
     d3.text(DATA_BASE_URL + "/saturn_active_node_stats.csv"),
-    d3.text(DATA_BASE_URL + "/saturn_active_node_by_country.csv"),
+    d3.text(DATA_BASE_URL + "/saturn_country_stats.csv"),
     d3.text(DATA_BASE_URL + "/saturn_traffic.csv"),
 ]);
 
 const active_node_data = parseActiveNode(text[0]);
 const active_node_stats_data = parseActiveNodeStats(text[1]);
-const active_node_by_country_data = parseActiveNodeByCountry(text[2]);
+const country_stats_data = parseCountryStats(text[2]);
 const traffic_data = parseTraffic(text[3]);
 
 plotActiveNodeAndTraffic(active_node_data, traffic_data);
 plotActiveNodeAge(active_node_stats_data);
 plotNodeAgeCorrelation(active_node_stats_data);
-plotActiveNodeByCountry(active_node_by_country_data);
-plotServedCountries(active_node_by_country_data);
+plotActiveNodeByCountry(country_stats_data);
+plotServedCountries(country_stats_data);
 plotActiveNodeDistribution(active_node_stats_data);
