@@ -146,46 +146,59 @@ function plotActiveNodeByCountry(data) {
     Plotly.newPlot(element, traces);
 }
 
-// Plot the most and the least served countries.
-function plotServedCountries(data) {
-    // Order data by descending count.
-    const sorted = Array.from(data).sort((a, b) => {
-        return b.active_node_count - a.active_node_count;
+// Plot earnings per node, node count and traffic by country.
+function plotCountryStats(data) {
+    const stats = data.map((e) => {
+        return {
+            country: e.country,
+            earnings_per_node: e.estimated_earnings_fil / e.active_node_count,
+            active_node_count: e.active_node_count,
+        }
     });
 
-    const locations = [], z = [];
+    // Order data by descending earnings per node.
+    const sorted = Array.from(stats).sort((a, b) => {
+        return b.earnings_per_node - a.earnings_per_node;
+    });
 
+    const locations = [], earnings = [], node_count = [];
     sorted.forEach((e) => {
         locations.push(e.country);
-        z.push(e.active_node_count);
+        earnings.push(e.earnings_per_node);
+        node_count.push(e.active_node_count);
     });
 
-    const top = {
-        type: 'bar',
-        x: z.slice(0, 20).reverse(),
-        y: locations.slice(0, 20).reverse(),
-        orientation: 'h',
-    };
+    locations.reverse();
+    earnings.reverse();
+    node_count.reverse();
 
-    const bottom = {
+    const traces = [{
         type: 'bar',
-        x: z.slice(-20),
-        y: locations.slice(-20),
+        x: earnings,
+        y: locations,
+        orientation: 'h',
+        offsetgroup: 1,
+    }, {
+        type: 'bar',
+        x: node_count,
+        y: locations,
+        orientation: 'h',
         xaxis: 'x2',
-        yaxis: 'y2',
-        orientation: 'h',
-    };
+        offsetgroup: 2,
+    }];
 
-    const traces = [top, bottom];
     const layout = {
-        grid: {
-            rows: 1,
-            columns: 2,
-            pattern: 'independent',
-        }
+        xaxis: {
+            side: 'top',
+        },
+        xaxis2: {
+            overlaying: 'x',
+            side: 'bottom',
+        },
+        barmode: 'group',
     };
 
-    const element = document.getElementById("saturn-served-countries");
+    const element = document.getElementById("saturn-country-stats");
     Plotly.newPlot(element, traces, layout);
 }
 
@@ -258,5 +271,5 @@ plotActiveNodeAndTraffic(active_node_data, traffic_data);
 plotActiveNodeAge(active_node_stats_data);
 plotNodeAgeCorrelation(active_node_stats_data);
 plotActiveNodeByCountry(country_stats_data);
-plotServedCountries(country_stats_data);
+plotCountryStats(country_stats_data);
 plotActiveNodeDistribution(active_node_stats_data);
