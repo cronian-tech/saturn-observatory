@@ -14,6 +14,16 @@ COPY (
     ORDER BY observed_at -- Ordering is required for deterministic results.
 ) TO '/outputs/saturn_active_node.csv';
 
+-- Returns network traffic over time.
+COPY (
+    SELECT
+        observed_at,
+        sum(bandwidth_served_bytes)
+    FROM saturn_node_bandwidth_served
+    GROUP BY observed_at
+    ORDER BY observed_at -- Ordering is required for deterministic results.
+) TO '/outputs/saturn_traffic.csv';
+
 -- Returns the number of active nodes by country.
 COPY (
     SELECT

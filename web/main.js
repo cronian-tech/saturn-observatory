@@ -1,7 +1,7 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm";
 import "https://cdn.plot.ly/plotly-2.26.0.min.js";
 
-const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeicxvnbzgmry36crdhasjg57r6uz6ubxreijvven6jhjrfkslsyyl4/year=2023/month=8";
+const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeifm4hdjmahg2exxeiqdacg6akd27uazk622xbwgq2athhvh2vnbwm/year=2023/month=8";
 
 function parseActiveNode(text) {
     return d3.csvParseRows(text, (d, i) => {
@@ -32,20 +32,47 @@ function parseActiveNodeByCountry(text) {
     });
 }
 
-// Plot the number of active Saturn nodes over time.
-function plotActiveNode(data) {
-    const x = [], y = [];
+function parseTraffic(text) {
+    return d3.csvParseRows(text, (d, i) => {
+        return {
+            date: new Date(d[0]),
+            traffic: +d[1],
+        };
+    });
+}
 
-    data.forEach((e) => {
+// Plot the number of active Saturn nodes and network traffic over time.
+function plotActiveNodeAndTraffic(node_data, traffic_data) {
+    const x = [], y = [];
+    node_data.forEach((e) => {
         x.push(e['date']);
         y.push(e['count']);
     });
 
-    const element = document.getElementById("saturn-active-node");
-    Plotly.newPlot(element, [{
+    const x1 = [], y1 = [];
+    traffic_data.forEach((e) => {
+        x1.push(e['date']);
+        y1.push(e['traffic']);
+    });
+
+    const traces = [{
         x: x,
         y: y,
-    }]);
+    }, {
+        x: x1,
+        y: y1,
+        yaxis: 'y2',
+    }];
+
+    const layout = {
+        yaxis2: {
+            overlaying: 'y',
+            side: 'right'
+        }
+    };
+
+    const element = document.getElementById("saturn-active-node");
+    Plotly.newPlot(element, traces, layout);
 }
 
 // Plot Saturn active node age historgram.
@@ -217,15 +244,17 @@ const text = await Promise.all([
     d3.text(DATA_BASE_URL + "/saturn_active_node.csv"),
     d3.text(DATA_BASE_URL + "/saturn_active_node_stats.csv"),
     d3.text(DATA_BASE_URL + "/saturn_active_node_by_country.csv"),
+    d3.text(DATA_BASE_URL + "/saturn_traffic.csv"),
 ]);
 
 const active_node_data = parseActiveNode(text[0]);
-const saturn_active_node_stats = parseActiveNodeStats(text[1]);
+const active_node_stats_data = parseActiveNodeStats(text[1]);
 const active_node_by_country_data = parseActiveNodeByCountry(text[2]);
+const traffic_data = parseTraffic(text[3]);
 
-plotActiveNode(active_node_data);
-plotActiveNodeAge(saturn_active_node_stats);
-plotNodeAgeCorrelation(saturn_active_node_stats);
+plotActiveNodeAndTraffic(active_node_data, traffic_data);
+plotActiveNodeAge(active_node_stats_data);
+plotNodeAgeCorrelation(active_node_stats_data);
 plotActiveNodeByCountry(active_node_by_country_data);
 plotServedCountries(active_node_by_country_data);
-plotActiveNodeDistribution(saturn_active_node_stats);
+plotActiveNodeDistribution(active_node_stats_data);
