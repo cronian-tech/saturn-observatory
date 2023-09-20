@@ -3,17 +3,6 @@ CREATE TABLE IF NOT EXISTS saturn_node_creation AS FROM '/inputs/saturn_node_cre
 CREATE TABLE IF NOT EXISTS saturn_node_estimated_earnings AS FROM '/inputs/saturn_node_estimated_earnings.csv.gz';
 CREATE TABLE IF NOT EXISTS saturn_node_bandwidth_served AS FROM '/inputs/saturn_node_bandwidth_served.csv.gz';
 
--- Returns the number of active nodes over time.
-COPY (
-    SELECT
-        observed_at,
-        count(node_id)
-    FROM saturn_node_info
-    WHERE state = 'active'
-    GROUP BY observed_at
-    ORDER BY observed_at -- Ordering is required for deterministic results.
-) TO '/outputs/saturn_active_node.csv';
-
 -- Returns network traffic over time.
 COPY (
     SELECT
@@ -133,3 +122,110 @@ COPY (
     LEFT OUTER JOIN bandwidth_served_by_node USING (node_id)
     ORDER BY node_id -- Ordering is required for deterministic results.
 ) TO '/outputs/saturn_active_node_stats.csv';
+
+-- Count how many nodes were active at the specified point in time.
+CREATE OR REPLACE MACRO active(analyzed_at) AS
+(
+    SELECT count(*)
+    FROM saturn_node_info
+    WHERE
+        state = 'active' AND
+        observed_at = analyzed_at
+);
+
+-- Return the number of nodes that were continiously active for the given time interval i.
+CREATE OR REPLACE MACRO active_interval(analyzed_at, i) AS
+(
+    WITH
+    -- For every active node return it's longest activity interval.
+    activity AS (
+        SELECT
+            node_id,
+            max(observed_at) - min(observed_at) AS active
+        FROM saturn_node_info
+        WHERE
+            state = 'active' AND
+            observed_at BETWEEN CAST(analyzed_at AS DATETIME) - CAST(i AS INTERVAL) AND CAST(analyzed_at AS DATETIME)
+        GROUP BY node_id
+    )
+    -- Count how many nodes were active during time interval i.
+    SELECT count(*)
+    FROM activity
+    WHERE active >= CAST(i AS INTERVAL)
+);
+
+-- Return the number of nodes that were continiously active
+-- but didn't receive any traffic for the given time interval i.
+CREATE OR REPLACE MACRO active_not_serving_interval(analyzed_at, i) AS
+(
+    WITH
+    -- For every active node return it's longest activity interval.
+    activity AS (
+        SELECT
+            node_id,
+            max(observed_at) - min(observed_at) AS active
+        FROM saturn_node_info
+        WHERE
+            state = 'active' AND
+            observed_at BETWEEN CAST(analyzed_at AS DATETIME) - CAST(i AS INTERVAL) AND CAST(analyzed_at AS DATETIME)
+        GROUP BY node_id
+    ),
+    -- Return nodes that were active during time interval i.
+    active_interval AS (
+        SELECT node_id
+        FROM activity
+        WHERE active >= CAST(i AS INTERVAL)
+    ),
+    -- For every node calculate traffic during time interval i.
+    bandwidth_served AS (
+        SELECT
+            node_id,
+            sum(bandwidth_served_bytes) as bandwidth_served_bytes
+        FROM saturn_node_bandwidth_served
+        WHERE
+            observed_at BETWEEN CAST(analyzed_at AS DATETIME) - CAST(i AS INTERVAL) AND CAST(analyzed_at AS DATETIME)
+        GROUP BY node_id
+    ),
+    -- For every node active during time interval i return its traffic.
+    active_served AS (
+        SELECT
+            node_id,
+            coalesce(bandwidth_served_bytes, 0) as bandwidth_served_bytes
+        FROM active_interval
+        LEFT OUTER JOIN bandwidth_served USING (node_id)
+    )
+    -- Finally, count how many nodes didn't receive any traffic.
+    SELECT count(*)
+    FROM active_served
+    WHERE bandwidth_served_bytes = 0
+);
+
+-- Return the total number of active nodes and the number of nodes that haven't been receiving traffic over time.
+-- This query is pretty heavy. There's probably a way to optimize it.'
+COPY (
+    SELECT
+        observed_at,
+        active(observed_at) as active_count,
+        -- 3 minute is a magic number that ensures correct intervals.
+        -- It depends on input metrics scrapping interval which is 3 minutes now.
+        active_interval(observed_at, '2 hour 3 minute') AS active_2h_count,
+        active_not_serving_interval(observed_at, '2 hour 3 minute') AS active_not_serving_2h_count,
+        active_interval(observed_at, '6 hour 3 minute') AS active_6h_count,
+        active_not_serving_interval(observed_at, '6 hour 3 minute') AS active_not_serving_6h_count,
+        active_interval(observed_at, '12 hour 3 minute') AS active_12h_count,
+        active_not_serving_interval(observed_at, '12 hour 3 minute') AS active_not_serving_12h_count,
+        active_interval(observed_at, '24 hour 3 minute') AS active_24h_count,
+        active_not_serving_interval(observed_at, '24 hour 3 minute') AS active_not_serving_24h_count,
+    FROM (
+        SELECT
+            max(observed_at) AS observed_at
+        FROM saturn_node_info
+        -- Probably groupping could be replaced with some faster way to generate observation timestamps.
+        GROUP by
+            datepart('year', observed_at),
+            datepart('month', observed_at),
+            datepart('day', observed_at),
+            datepart('hour', observed_at)
+    )
+    ORDER BY observed_at  -- Ordering is required for deterministic results.
+) TO '/outputs/saturn_active_node.csv';

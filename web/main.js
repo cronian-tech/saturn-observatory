@@ -1,13 +1,21 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm";
 import "https://cdn.plot.ly/plotly-2.26.0.min.js";
 
-const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeibk6ob5meok5567wjcnodlzbmqjutguxqzulscqobejtevl7velnq/year=2023/month=8";
+const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeicq363qh7gzauobea4w6cwrv3sxp4lpxlxz6st5bw5fw7g6hfoqye/year=2023/month=8";
 
 function parseActiveNode(text) {
     return d3.csvParseRows(text, (d, i) => {
         return {
             date: new Date(d[0]),
-            count: +d[1],
+            active_count: +d[1],
+            active_2h_count: +d[2],
+            active_not_serving_2h_count: +d[3],
+            active_6h_count: +d[4],
+            active_not_serving_6h_count: +d[5],
+            active_12h_count: +d[6],
+            active_not_serving_12h_count: +d[7],
+            active_24h_count: +d[8],
+            active_not_serving_24h_count: +d[9],
         };
     });
 }
@@ -47,14 +55,14 @@ function parseTraffic(text) {
 function plotActiveNodeAndTraffic(node_data, traffic_data) {
     const x = [], y = [];
     node_data.forEach((e) => {
-        x.push(e['date']);
-        y.push(e['count']);
+        x.push(e.date);
+        y.push(e.active_count);
     });
 
     const x1 = [], y1 = [];
     traffic_data.forEach((e) => {
-        x1.push(e['date']);
-        y1.push(e['traffic']);
+        x1.push(e.date);
+        y1.push(e.traffic);
     });
 
     const traces = [{
@@ -75,6 +83,55 @@ function plotActiveNodeAndTraffic(node_data, traffic_data) {
 
     const element = document.getElementById("saturn-active-node");
     Plotly.newPlot(element, traces, layout, { responsive: true });
+}
+
+// Plot the percentage of active Saturn nodes that do not receive traffic.
+function plotActiveNodeWithoutTraffic(data) {
+    const x = [], y_2h = [], y_6h = [], y_12h = [], y_24h = [];
+    data.forEach((e) => {
+        x.push(e.date);
+
+        if (e.active_2h_count > 0) {
+            y_2h.push((e.active_not_serving_2h_count / e.active_2h_count) * 100);
+        } else {
+            y_2h.push(0);
+        }
+
+        if (e.active_6h_count > 0) {
+            y_6h.push((e.active_not_serving_6h_count / e.active_6h_count) * 100);
+        } else {
+            y_6h.push(0);
+        }
+
+        if (e.active_12h_count > 0) {
+            y_12h.push((e.active_not_serving_12h_count / e.active_12h_count) * 100);
+        } else {
+            y_12h.push(0);
+        }
+
+        if (e.active_24h_count > 0) {
+            y_24h.push((e.active_not_serving_24h_count / e.active_24h_count) * 100);
+        } else {
+            y_24h.push(0);
+        }
+    });
+
+    const traces = [{
+        x: x,
+        y: y_2h,
+    }, {
+        x: x,
+        y: y_6h,
+    }, {
+        x: x,
+        y: y_12h,
+    }, {
+        x: x,
+        y: y_24h,
+    }];
+
+    const element = document.getElementById("saturn-active-node-without-traffic");
+    Plotly.newPlot(element, traces, { responsive: true });
 }
 
 // Plot Saturn active node age historgram.
@@ -286,6 +343,7 @@ const country_stats_data = parseCountryStats(text[2]);
 const traffic_data = parseTraffic(text[3]);
 
 plotActiveNodeAndTraffic(active_node_data, traffic_data);
+plotActiveNodeWithoutTraffic(active_node_data);
 plotActiveNodeAge(active_node_stats_data);
 plotNodeAgeCorrelation(active_node_stats_data);
 plotActiveNodeByCountry(country_stats_data);
