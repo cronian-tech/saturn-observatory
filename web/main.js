@@ -74,7 +74,7 @@ function plotActiveNodeAndTraffic(node_data, traffic_data) {
     };
 
     const element = document.getElementById("saturn-active-node");
-    Plotly.newPlot(element, traces, layout);
+    Plotly.newPlot(element, traces, layout, { responsive: true });
 }
 
 // Plot Saturn active node age historgram.
@@ -85,7 +85,7 @@ function plotActiveNodeAge(data) {
     Plotly.newPlot(element, [{
         x: x,
         type: 'histogram',
-    }]);
+    }], {}, { responsive: true });
 }
 
 // Plot correlation between node age and earnings and traffic.
@@ -121,7 +121,7 @@ function plotNodeAgeCorrelation(data) {
     };
 
     const element = document.getElementById("saturn-node-age-correlation");
-    Plotly.newPlot(element, traces, layout);
+    Plotly.newPlot(element, traces, layout, { responsive: true });
 }
 
 // Plot the number of active Saturn nodes by country.
@@ -143,7 +143,7 @@ function plotActiveNodeByCountry(data) {
     }];
 
     const element = document.getElementById("saturn-active-node-by-country");
-    Plotly.newPlot(element, traces);
+    Plotly.newPlot(element, traces, {}, { responsive: true });
 }
 
 // Plot earnings per node, node count and traffic by country.
@@ -153,6 +153,7 @@ function plotCountryStats(data) {
             country: e.country,
             earnings_per_node: e.estimated_earnings_fil / e.active_node_count,
             active_node_count: e.active_node_count,
+            bandwidth_served_bytes: e.bandwidth_served_bytes,
         }
     });
 
@@ -161,16 +162,18 @@ function plotCountryStats(data) {
         return b.earnings_per_node - a.earnings_per_node;
     });
 
-    const locations = [], earnings = [], node_count = [];
+    const locations = [], earnings = [], node_count = [], traffic = [];
     sorted.forEach((e) => {
         locations.push(e.country);
         earnings.push(e.earnings_per_node);
         node_count.push(e.active_node_count);
+        traffic.push(e.bandwidth_served_bytes);
     });
 
     locations.reverse();
     earnings.reverse();
     node_count.reverse();
+    traffic.reverse();
 
     const traces = [{
         type: 'bar',
@@ -185,21 +188,36 @@ function plotCountryStats(data) {
         orientation: 'h',
         xaxis: 'x2',
         offsetgroup: 2,
+    }, {
+        x: traffic,
+        y: locations,
+        xaxis: 'x3',
     }];
 
     const layout = {
         xaxis: {
             side: 'top',
+            domain: [0, 0.5],
         },
         xaxis2: {
             overlaying: 'x',
             side: 'bottom',
+            domain: [0, 0.5],
+        },
+        xaxis3: {
+            side: 'top',
+            domain: [0.5, 1],
+        },
+        yaxis: {
+            dtick: 1.4,
         },
         barmode: 'group',
+        bargap: 0.5,
+        hovermode: 'y unified',
     };
 
     const element = document.getElementById("saturn-country-stats");
-    Plotly.newPlot(element, traces, layout);
+    Plotly.newPlot(element, traces, layout, { responsive: true });
 }
 
 // Plot earnings and traffic distribution (x percent of nodes receive y percent of traffic).
@@ -251,7 +269,7 @@ function plotActiveNodeDistribution(data) {
     Plotly.newPlot(element, [
         { x: x, y: y },
         { x: x1, y: y1 },
-    ]);
+    ], {}, { responsive: true });
 }
 
 // Concurrently download all data.
