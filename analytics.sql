@@ -13,6 +13,7 @@ COPY (
     ORDER BY observed_at -- Ordering is required for deterministic results.
 ) TO '/outputs/saturn_traffic.csv';
 
+
 -- Calculate traffic served per node.
 CREATE TEMP VIEW bandwidth_served_by_node AS
 SELECT
@@ -20,6 +21,7 @@ SELECT
     sum(bandwidth_served_bytes) as bandwidth_served_bytes
 FROM saturn_node_bandwidth_served
 GROUP BY node_id;
+
 
 -- Calculate estimated earnings per node.
 CREATE TEMP VIEW estimated_earnings_by_node AS
@@ -31,19 +33,21 @@ FROM saturn_node_estimated_earnings
 WHERE observed_at >= '2023-08-02'
 GROUP BY node_id;
 
+
+-- For every node return its country.
+CREATE TEMP VIEW node_country AS
+SELECT
+    node_id,
+    -- There's a little chance that some nodes changed their location.
+    -- But we simply ignore it by taking any known location of a node.
+    any_value(geoloc_country) as geoloc_country
+FROM saturn_node_info
+GROUP BY node_id;
+
+
 -- Return the number of active nodes, estimated earnings and traffic by country.
 COPY (
     WITH
-    -- For every node return its country.
-    node_country AS (
-        SELECT
-            node_id,
-            -- There's a little chance that some nodes changed their location.
-            -- But we simply ignore it by taking any known location of a node.
-            any_value(geoloc_country) as geoloc_country
-        FROM saturn_node_info
-        GROUP BY node_id
-    ),
     -- Return the number of active nodes by country.
     active_nodes AS (
         SELECT
@@ -74,6 +78,7 @@ COPY (
     JOIN active_nodes USING (geoloc_country)
     ORDER BY geoloc_country -- Ordering is required for deterministic results.
 ) TO '/outputs/saturn_country_stats.csv';
+
 
 -- For every active node return various calculated stats.
 COPY (
@@ -123,15 +128,17 @@ COPY (
     ORDER BY node_id -- Ordering is required for deterministic results.
 ) TO '/outputs/saturn_active_node_stats.csv';
 
+
 -- Count how many nodes were active at the specified point in time.
 CREATE OR REPLACE MACRO active(analyzed_at) AS
 (
-    SELECT count(*)
+    SELECT count(DISTINCT node_id)
     FROM saturn_node_info
     WHERE
         state = 'active' AND
         observed_at = analyzed_at
 );
+
 
 -- Return the number of nodes that were continiously active for the given time interval i.
 CREATE OR REPLACE MACRO active_interval(analyzed_at, i) AS
@@ -153,6 +160,7 @@ CREATE OR REPLACE MACRO active_interval(analyzed_at, i) AS
     FROM activity
     WHERE active >= CAST(i AS INTERVAL)
 );
+
 
 -- Return the number of nodes that were continiously active
 -- but didn't receive any traffic for the given time interval i.
@@ -200,6 +208,7 @@ CREATE OR REPLACE MACRO active_not_serving_interval(analyzed_at, i) AS
     WHERE bandwidth_served_bytes = 0
 );
 
+
 -- Return the total number of active nodes and the number of nodes that haven't been receiving traffic over time.
 -- This query is pretty heavy. There's probably a way to optimize it.'
 COPY (
@@ -229,3 +238,59 @@ COPY (
     )
     ORDER BY observed_at  -- Ordering is required for deterministic results.
 ) TO '/outputs/saturn_active_node.csv';
+
+
+-- For every country return the number of active nodes over time.
+COPY (
+    SELECT
+        max(observed_at) AS observed_at,
+        geoloc_country,
+        count(DISTINCT node_id) AS active_node_count
+    FROM saturn_node_info
+    WHERE STATE = 'active'
+    GROUP BY
+        datepart('year', observed_at),
+        datepart('month', observed_at),
+        datepart('day', observed_at),
+        datepart('hour', observed_at),
+        geoloc_country
+    ORDER BY -- Ordering is required for deterministic results.
+        observed_at,
+        geoloc_country
+) TO '/outputs/saturn_active_node_by_country.csv';
+
+
+-- For every country return traffic over time.
+COPY (
+    SELECT
+        observed_at,
+        geoloc_country,
+        sum(bandwidth_served_bytes) AS bandwidth_served_bytes
+    FROM saturn_node_bandwidth_served
+    JOIN node_country USING (node_id)
+    GROUP BY
+        observed_at,
+        geoloc_country
+    ORDER BY -- Ordering is required for deterministic results.
+        observed_at,
+        geoloc_country
+) TO '/outputs/saturn_traffic_by_country.csv';
+
+
+-- For every country return estimated earnings over time.
+COPY (
+    SELECT
+        observed_at,
+        geoloc_country,
+        sum(estimated_earnings_fil) AS estimated_earnings_fil
+    FROM saturn_node_estimated_earnings
+    JOIN node_country USING (node_id)
+    -- Earnings on 2023-08-01 looks abnormally high. Need to figure out this later.
+    WHERE observed_at >= '2023-08-02'
+    GROUP BY
+        observed_at,
+        geoloc_country
+    ORDER BY -- Ordering is required for deterministic results.
+        observed_at,
+        geoloc_country
+) TO '/outputs/saturn_earnings_by_country.csv';

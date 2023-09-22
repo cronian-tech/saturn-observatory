@@ -1,7 +1,7 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm";
 import "https://cdn.plot.ly/plotly-2.26.0.min.js";
 
-const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeicq363qh7gzauobea4w6cwrv3sxp4lpxlxz6st5bw5fw7g6hfoqye/year=2023/month=8";
+const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeid74ktbaz4ba7wooexl4bvoskb7c73uflgnferueghgtncvfajxh4/year=2023/month=8";
 
 function parseActiveNode(text) {
     return d3.csvParseRows(text, (d, i) => {
@@ -38,6 +38,36 @@ function parseCountryStats(text) {
             active_node_count: +d[1],
             estimated_earnings_fil: +d[2],
             bandwidth_served_bytes: +d[3],
+        };
+    });
+}
+
+function parseActiveNodeByCountry(text) {
+    return d3.csvParseRows(text, (d, i) => {
+        return {
+            date: new Date(d[0]),
+            country: d[1],
+            active_node_count: +d[2],
+        };
+    });
+}
+
+function parseTrafficByCountry(text) {
+    return d3.csvParseRows(text, (d, i) => {
+        return {
+            date: new Date(d[0]),
+            country: d[1],
+            traffic: +d[2],
+        };
+    });
+}
+
+function parseEarningsByCountry(text) {
+    return d3.csvParseRows(text, (d, i) => {
+        return {
+            date: new Date(d[0]),
+            country: d[1],
+            earnings: +d[2],
         };
     });
 }
@@ -82,6 +112,124 @@ function plotActiveNodeAndTraffic(node_data, traffic_data) {
     };
 
     const element = document.getElementById("saturn-active-node");
+    Plotly.newPlot(element, traces, layout, { responsive: true });
+}
+
+// Plot the number of active Saturn nodes and network traffic by country over time.
+function plotActiveNodeByCountry(node_data, traffic_data, earnings_data) {
+    let contries = new Map();
+    const newTrace = () => {
+        return {
+            nodes: { x: [], y: [] },
+            traffic: { x: [], y: [] },
+            earnings: { x: [], y: [] },
+        };
+    };
+
+    node_data.forEach((e) => {
+        let trace = contries.get(e.country);
+        if (trace === undefined) {
+            trace = newTrace();
+            contries.set(e.country, trace);
+        }
+
+        trace.nodes.x.push(e.date);
+        trace.nodes.y.push(e.active_node_count);
+    });
+
+    traffic_data.forEach((e) => {
+        let trace = contries.get(e.country);
+        if (trace === undefined) {
+            trace = newTrace();
+            contries.set(e.country, trace);
+        }
+
+        trace.traffic.x.push(e.date);
+        trace.traffic.y.push(e.traffic);
+    });
+
+    earnings_data.forEach((e) => {
+        let trace = contries.get(e.country);
+        if (trace === undefined) {
+            trace = newTrace();
+            contries.set(e.country, trace);
+        }
+
+        trace.earnings.x.push(e.date);
+        trace.earnings.y.push(e.earnings);
+    });
+
+    contries = new Map([...contries.entries()].sort());
+
+    const traces = [];
+    const menus = {
+        buttons: [],
+    };
+    const layout = {
+        yaxis3: {
+            side: 'left',
+            domain: [0, 0.5],
+        },
+        yaxis2: {
+            overlaying: 'y',
+            side: 'right',
+            domain: [0, 0.5],
+        },
+        yaxis1: {
+            side: 'left',
+            domain: [0.5, 1],
+        },
+        hovermode: 'x unified',
+        updatemenus: [menus],
+    };
+
+    const makeArgs = (x) => {
+        const args = new Array(contries.size * 3);
+
+        args.fill(false);
+        args.fill(true, x * 3, x * 3 + 3);
+
+        return ['visible', args];
+    };
+
+    let i = 0;
+    for (const [country, trace] of contries) {
+        traces.push({
+            x: trace.earnings.x,
+            y: trace.earnings.y,
+            xaxis: 'x1',
+            yaxis: 'y3',
+            visible: false,
+        });
+        traces.push({
+            x: trace.nodes.x,
+            y: trace.nodes.y,
+            xaxis: 'x1',
+            yaxis: 'y1',
+            visible: false,
+        });
+        traces.push({
+            x: trace.traffic.x,
+            y: trace.traffic.y,
+            xaxis: 'x1',
+            yaxis: 'y2',
+            visible: false,
+        });
+
+        menus.buttons.push({
+            method: 'restyle',
+            args: makeArgs(i),
+            label: country,
+        });
+
+        i++;
+    }
+
+    traces[0].visible = true;
+    traces[1].visible = true;
+    traces[2].visible = true;
+
+    const element = document.getElementById("saturn-active-node-and-traffic");
     Plotly.newPlot(element, traces, layout, { responsive: true });
 }
 
@@ -182,7 +330,7 @@ function plotNodeAgeCorrelation(data) {
 }
 
 // Plot the number of active Saturn nodes by country.
-function plotActiveNodeByCountry(data) {
+function plotActiveNodeOnMap(data) {
     const locations = [], z = [];
 
     data.forEach((e) => {
@@ -265,9 +413,6 @@ function plotCountryStats(data) {
             side: 'top',
             domain: [0.5, 1],
         },
-        yaxis: {
-            dtick: 1.4,
-        },
         barmode: 'group',
         bargap: 0.5,
         hovermode: 'y unified',
@@ -335,17 +480,24 @@ const text = await Promise.all([
     d3.text(DATA_BASE_URL + "/saturn_active_node_stats.csv"),
     d3.text(DATA_BASE_URL + "/saturn_country_stats.csv"),
     d3.text(DATA_BASE_URL + "/saturn_traffic.csv"),
+    d3.text(DATA_BASE_URL + "/saturn_active_node_by_country.csv"),
+    d3.text(DATA_BASE_URL + "/saturn_traffic_by_country.csv"),
+    d3.text(DATA_BASE_URL + "/saturn_earnings_by_country.csv"),
 ]);
 
 const active_node_data = parseActiveNode(text[0]);
 const active_node_stats_data = parseActiveNodeStats(text[1]);
 const country_stats_data = parseCountryStats(text[2]);
 const traffic_data = parseTraffic(text[3]);
+const active_node_by_country_data = parseActiveNodeByCountry(text[4]);
+const traffic_by_country_data = parseTrafficByCountry(text[5]);
+const earnings_by_country_data = parseEarningsByCountry(text[6]);
 
 plotActiveNodeAndTraffic(active_node_data, traffic_data);
 plotActiveNodeWithoutTraffic(active_node_data);
 plotActiveNodeAge(active_node_stats_data);
 plotNodeAgeCorrelation(active_node_stats_data);
-plotActiveNodeByCountry(country_stats_data);
+plotActiveNodeOnMap(country_stats_data);
 plotCountryStats(country_stats_data);
 plotActiveNodeDistribution(active_node_stats_data);
+plotActiveNodeByCountry(active_node_by_country_data, traffic_by_country_data, earnings_by_country_data);
