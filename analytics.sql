@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS saturn_node_creation AS FROM '/inputs/saturn_node_cre
 CREATE TABLE IF NOT EXISTS saturn_node_estimated_earnings AS FROM '/inputs/saturn_node_estimated_earnings.csv.gz';
 CREATE TABLE IF NOT EXISTS saturn_node_bandwidth_served AS FROM '/inputs/saturn_node_bandwidth_served.csv.gz';
 CREATE TABLE IF NOT EXISTS saturn_node_retrievals AS FROM '/inputs/saturn_node_retrievals.csv.gz';
+CREATE TABLE IF NOT EXISTS saturn_node_response_duration AS FROM '/inputs/saturn_node_response_duration_milliseconds.csv.gz';
 
 
 -- Returns network traffic over time.
@@ -25,7 +26,8 @@ COPY (
     GROUP BY
         datepart('year', observed_at),
         datepart('month', observed_at),
-        datepart('day', observed_at)
+        datepart('day', observed_at),
+        datepart('hour', observed_at)
     ORDER BY observed_at -- Ordering is required for deterministic results.
 ) TO '/outputs/saturn_retrievals.csv';
 
@@ -310,3 +312,31 @@ COPY (
         observed_at,
         geoloc_country
 ) TO '/outputs/saturn_earnings_by_country.csv';
+
+
+-- Returns average response duration percentiles over time.
+-- NB: Somehow this query must be the last in the file.
+--     Otherwise I get parser error from DuckDB. Probably a bug.
+COPY (
+    WITH avg_response_duration AS (
+        -- This is a simplified PIVOT syntax supported by DuckDB.
+        PIVOT saturn_node_response_duration
+        ON quantile
+        USING avg(duration_milliseconds)
+        GROUP BY observed_at
+    )
+    SELECT
+        max(observed_at) AS observed_at,
+        avg("0.01") AS p1,
+        avg("0.05") AS p5,
+        avg("0.5") AS p50,
+        avg("0.95") AS p95,
+        avg("0.99") AS p99
+    FROM avg_response_duration
+    GROUP BY
+        datepart('year', observed_at),
+        datepart('month', observed_at),
+        datepart('day', observed_at),
+        datepart('hour', observed_at)
+    ORDER BY observed_at -- Ordering is required for deterministic results.
+) TO '/outputs/saturn_response_duration.csv';

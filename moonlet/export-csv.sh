@@ -53,6 +53,10 @@ curl_export 'saturn_node_creation_timestamp' \
     '__timestamp__:rfc3339,id,__value__' \
     'observed_at,node_id,created_at'
 
+curl_export 'saturn_node_response_duration_milliseconds' \
+    '__timestamp__:rfc3339,id,quantile,__value__' \
+    'observed_at,node_id,quantile,duration_milliseconds'
+
 python_export 'saturn_node_bandwidth_served' \
     'increase(saturn_node_bandwidth_served_bytes_total)' \
     'observed_at,node_id,bandwidth_served_bytes'

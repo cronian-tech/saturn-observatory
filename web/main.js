@@ -1,7 +1,7 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm";
 import "https://cdn.plot.ly/plotly-2.26.0.min.js";
 
-const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeigzjxmwyyk3bfvhxvvfsza2qayewvrzfbg7azd2c6kamizotxce6e/year=2023/month=8";
+const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeiejnkkjzuhrpyxnwgz3yfhccsao2yxudiwyczjznbshidksfru3sa/year=2023/month=8";
 
 function parseActiveNode(text) {
     return d3.csvParseRows(text, (d, i) => {
@@ -90,6 +90,17 @@ function parseRetrievals(text) {
     });
 }
 
+function parseResponseDuration(text) {
+    return d3.csvParseRows(text, (d, i) => {
+        return {
+            date: new Date(d[0]),
+            p5: +d[2],
+            p50: +d[3],
+            p95: +d[4],
+        };
+    });
+}
+
 // Plot the number of active Saturn nodes and network traffic over time.
 function plotActiveNodeAndTraffic(node_data, traffic_data) {
     const x = [], y = [];
@@ -125,20 +136,50 @@ function plotActiveNodeAndTraffic(node_data, traffic_data) {
 }
 
 // Plot the number of network retrievals over time.
-function plotRetrievals(data) {
+function plotRetrievals(retrievals_data, duration_data) {
     const x = [], y = [];
-    data.forEach((e) => {
+    retrievals_data.forEach((e) => {
         x.push(e.date);
         y.push(e.retrievals);
+    });
+
+    const x1 = [], y5 = [], y50 = [], y95 = [];
+    duration_data.forEach((e) => {
+        x1.push(e.date);
+        y5.push(e.p5);
+        y50.push(e.p50);
+        y95.push(e.p95);
     });
 
     const traces = [{
         x: x,
         y: y,
+        type: 'bar',
+        opacity: 0.5,
+    }, {
+        x: x1,
+        y: y5,
+        yaxis: 'y2',
+    }, {
+        x: x1,
+        y: y50,
+        yaxis: 'y2',
+    }, {
+        x: x1,
+        y: y95,
+        yaxis: 'y2',
     }];
 
+    const layout = {
+        yaxis2: {
+            overlaying: 'y',
+            side: 'right'
+        },
+        hovermode: 'x unified',
+    };
+
     const element = document.getElementById("saturn-retrievals");
-    Plotly.newPlot(element, traces, {}, { responsive: true });
+    Plotly.newPlot(element, traces, layout, { responsive: true });
 }
 
 // Plot the number of active Saturn nodes and network traffic by country over time.
@@ -510,6 +551,7 @@ const text = await Promise.all([
     d3.text(DATA_BASE_URL + "/saturn_traffic_by_country.csv"),
     d3.text(DATA_BASE_URL + "/saturn_earnings_by_country.csv"),
     d3.text(DATA_BASE_URL + "/saturn_retrievals.csv"),
+    d3.text(DATA_BASE_URL + "/saturn_response_duration.csv"),
 ]);
 
 const active_node_data = parseActiveNode(text[0]);
@@ -520,6 +562,7 @@ const active_node_by_country_data = parseActiveNodeByCountry(text[4]);
 const traffic_by_country_data = parseTrafficByCountry(text[5]);
 const earnings_by_country_data = parseEarningsByCountry(text[6]);
 const retrievals_data = parseRetrievals(text[7]);
+const duration_data = parseResponseDuration(text[8]);
 
 plotActiveNodeAndTraffic(active_node_data, traffic_data);
 plotActiveNodeWithoutTraffic(active_node_data);
@@ -529,4 +572,4 @@ plotActiveNodeOnMap(country_stats_data);
 plotCountryStats(country_stats_data);
 plotActiveNodeDistribution(active_node_stats_data);
 plotActiveNodeByCountry(active_node_by_country_data, traffic_by_country_data, earnings_by_country_data);
-plotRetrievals(retrievals_data);
+plotRetrievals(retrievals_data, duration_data);
