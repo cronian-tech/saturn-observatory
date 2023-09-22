@@ -2,6 +2,8 @@ CREATE TABLE IF NOT EXISTS saturn_node_info AS FROM '/inputs/saturn_node_info.cs
 CREATE TABLE IF NOT EXISTS saturn_node_creation AS FROM '/inputs/saturn_node_creation_timestamp.csv.gz';
 CREATE TABLE IF NOT EXISTS saturn_node_estimated_earnings AS FROM '/inputs/saturn_node_estimated_earnings.csv.gz';
 CREATE TABLE IF NOT EXISTS saturn_node_bandwidth_served AS FROM '/inputs/saturn_node_bandwidth_served.csv.gz';
+CREATE TABLE IF NOT EXISTS saturn_node_retrievals AS FROM '/inputs/saturn_node_retrievals.csv.gz';
+
 
 -- Returns network traffic over time.
 COPY (
@@ -12,6 +14,20 @@ COPY (
     GROUP BY observed_at
     ORDER BY observed_at -- Ordering is required for deterministic results.
 ) TO '/outputs/saturn_traffic.csv';
+
+
+-- Returns network retrievals over time.
+COPY (
+    SELECT
+        max(observed_at) as observed_at,
+        sum(retrievals)
+    FROM saturn_node_retrievals
+    GROUP BY
+        datepart('year', observed_at),
+        datepart('month', observed_at),
+        datepart('day', observed_at)
+    ORDER BY observed_at -- Ordering is required for deterministic results.
+) TO '/outputs/saturn_retrievals.csv';
 
 
 -- Calculate traffic served per node.

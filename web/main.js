@@ -1,7 +1,7 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm";
 import "https://cdn.plot.ly/plotly-2.26.0.min.js";
 
-const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeid74ktbaz4ba7wooexl4bvoskb7c73uflgnferueghgtncvfajxh4/year=2023/month=8";
+const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeigzjxmwyyk3bfvhxvvfsza2qayewvrzfbg7azd2c6kamizotxce6e/year=2023/month=8";
 
 function parseActiveNode(text) {
     return d3.csvParseRows(text, (d, i) => {
@@ -81,6 +81,15 @@ function parseTraffic(text) {
     });
 }
 
+function parseRetrievals(text) {
+    return d3.csvParseRows(text, (d, i) => {
+        return {
+            date: new Date(d[0]),
+            retrievals: +d[1],
+        };
+    });
+}
+
 // Plot the number of active Saturn nodes and network traffic over time.
 function plotActiveNodeAndTraffic(node_data, traffic_data) {
     const x = [], y = [];
@@ -113,6 +122,23 @@ function plotActiveNodeAndTraffic(node_data, traffic_data) {
 
     const element = document.getElementById("saturn-active-node");
     Plotly.newPlot(element, traces, layout, { responsive: true });
+}
+
+// Plot the number of network retrievals over time.
+function plotRetrievals(data) {
+    const x = [], y = [];
+    data.forEach((e) => {
+        x.push(e.date);
+        y.push(e.retrievals);
+    });
+
+    const traces = [{
+        x: x,
+        y: y,
+    }];
+
+    const element = document.getElementById("saturn-retrievals");
+    Plotly.newPlot(element, traces, {}, { responsive: true });
 }
 
 // Plot the number of active Saturn nodes and network traffic by country over time.
@@ -483,6 +509,7 @@ const text = await Promise.all([
     d3.text(DATA_BASE_URL + "/saturn_active_node_by_country.csv"),
     d3.text(DATA_BASE_URL + "/saturn_traffic_by_country.csv"),
     d3.text(DATA_BASE_URL + "/saturn_earnings_by_country.csv"),
+    d3.text(DATA_BASE_URL + "/saturn_retrievals.csv"),
 ]);
 
 const active_node_data = parseActiveNode(text[0]);
@@ -492,6 +519,7 @@ const traffic_data = parseTraffic(text[3]);
 const active_node_by_country_data = parseActiveNodeByCountry(text[4]);
 const traffic_by_country_data = parseTrafficByCountry(text[5]);
 const earnings_by_country_data = parseEarningsByCountry(text[6]);
+const retrievals_data = parseRetrievals(text[7]);
 
 plotActiveNodeAndTraffic(active_node_data, traffic_data);
 plotActiveNodeWithoutTraffic(active_node_data);
@@ -501,3 +529,4 @@ plotActiveNodeOnMap(country_stats_data);
 plotCountryStats(country_stats_data);
 plotActiveNodeDistribution(active_node_stats_data);
 plotActiveNodeByCountry(active_node_by_country_data, traffic_by_country_data, earnings_by_country_data);
+plotRetrievals(retrievals_data);
