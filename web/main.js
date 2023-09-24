@@ -183,7 +183,7 @@ function plotRetrievals(retrievals_data, duration_data) {
         y: y,
         type: 'bar',
         opacity: 0.5,
-        name: "Requests"
+        name: "Retrievals"
     }, {
         x: x1,
         y: y5,
@@ -215,7 +215,7 @@ function plotRetrievals(retrievals_data, duration_data) {
         yaxis: {
             fixedrange: true,
             title: {
-                text: "Number of requests",
+                text: "Number of retrievals",
             },
         },
         xaxis: {
@@ -538,6 +538,9 @@ function plotActiveNodeOnMap(data) {
         z: z,
         colorscale: "Blues",
         reversescale: true,
+        colorbar: {
+            title: 'Number of nodes',
+        }
     }];
 
     const element = document.getElementById("saturn-active-node-world");
@@ -598,7 +601,7 @@ function plotCountryStats(data) {
     const layout = {
         xaxis: {
             side: 'top',
-            domain: [0, 0.75],
+            domain: [0, 0.7],
             fixedrange: true,
             title: {
                 text: "Estimated earnings per node",
@@ -609,7 +612,7 @@ function plotCountryStats(data) {
         xaxis2: {
             overlaying: 'x',
             side: 'bottom',
-            domain: [0, 0.75],
+            domain: [0, 0.7],
             fixedrange: true,
             title: {
                 text: "Number of nodes",
@@ -617,7 +620,7 @@ function plotCountryStats(data) {
         },
         xaxis3: {
             side: 'top',
-            domain: [0.75, 1],
+            domain: [0.7, 1],
             fixedrange: true,
             title: {
                 text: "Total traffic",
