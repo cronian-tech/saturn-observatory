@@ -3,6 +3,12 @@ import "https://cdn.plot.ly/plotly-2.26.0.min.js";
 
 const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeiejnkkjzuhrpyxnwgz3yfhccsao2yxudiwyczjznbshidksfru3sa/year=2023/month=8";
 
+const PLOTLY_CONF = {
+    responsive: true,
+    displayModeBar: false,
+    scrollZoom: false,
+};
+
 function parseActiveNode(text) {
     return d3.csvParseRows(text, (d, i) => {
         return {
@@ -118,21 +124,42 @@ function plotActiveNodeAndTraffic(node_data, traffic_data) {
     const traces = [{
         x: x,
         y: y,
+        name: "Active nodes",
     }, {
         x: x1,
         y: y1,
         yaxis: 'y2',
+        name: "Traffic",
     }];
 
     const layout = {
         yaxis2: {
             overlaying: 'y',
-            side: 'right'
-        }
+            side: 'right',
+            fixedrange: true,
+            title: {
+                text: "Traffic",
+            },
+            tickformat: ".2~s",
+            ticksuffix: "B",
+        },
+        yaxis: {
+            fixedrange: true,
+            title: {
+                text: "Number of nodes",
+            },
+        },
+        xaxis: {
+            fixedrange: true
+        },
+        hovermode: 'x unified',
+        legend: {
+            orientation: 'h',
+        },
     };
 
     const element = document.getElementById("saturn-active-node");
-    Plotly.newPlot(element, traces, layout, { responsive: true });
+    Plotly.newPlot(element, traces, layout, PLOTLY_CONF);
 }
 
 // Plot the number of network retrievals over time.
@@ -146,9 +173,9 @@ function plotRetrievals(retrievals_data, duration_data) {
     const x1 = [], y5 = [], y50 = [], y95 = [];
     duration_data.forEach((e) => {
         x1.push(e.date);
-        y5.push(e.p5);
-        y50.push(e.p50);
-        y95.push(e.p95);
+        y5.push(e.p5 / 1000);
+        y50.push(e.p50 / 1000);
+        y95.push(e.p95 / 1000);
     });
 
     const traces = [{
@@ -156,30 +183,52 @@ function plotRetrievals(retrievals_data, duration_data) {
         y: y,
         type: 'bar',
         opacity: 0.5,
+        name: "Requests"
     }, {
         x: x1,
         y: y5,
         yaxis: 'y2',
+        name: "p5 TTFB",
     }, {
         x: x1,
         y: y50,
         yaxis: 'y2',
+        name: "p50 TTFB",
     }, {
         x: x1,
         y: y95,
         yaxis: 'y2',
+        name: "p95 TTFB",
     }];
 
     const layout = {
         yaxis2: {
             overlaying: 'y',
-            side: 'right'
+            side: 'right',
+            fixedrange: true,
+            title: {
+                text: "TTFB",
+            },
+            tickformat: ".3~s",
+            ticksuffix: "s",
+        },
+        yaxis: {
+            fixedrange: true,
+            title: {
+                text: "Number of requests",
+            },
+        },
+        xaxis: {
+            fixedrange: true
         },
         hovermode: 'x unified',
+        legend: {
+            orientation: 'h',
+        },
     };
 
     const element = document.getElementById("saturn-retrievals");
-    Plotly.newPlot(element, traces, layout, { responsive: true });
+    Plotly.newPlot(element, traces, layout, PLOTLY_CONF);
 }
 
 // Plot the number of active Saturn nodes and network traffic by country over time.
@@ -231,23 +280,49 @@ function plotActiveNodeByCountry(node_data, traffic_data, earnings_data) {
     const traces = [];
     const menus = {
         buttons: [],
+        xanchor: "left",
+        yanchor: "top",
+        x: 0,
+        y: 1.2,
     };
     const layout = {
         yaxis3: {
             side: 'left',
             domain: [0, 0.5],
+            fixedrange: true,
+            tickformat: ".3~f",
+            ticksuffix: " FIL",
+            title: {
+                text: "Estimated earnings",
+            },
         },
         yaxis2: {
             overlaying: 'y',
             side: 'right',
             domain: [0, 0.5],
+            fixedrange: true,
+            tickformat: ".2~s",
+            ticksuffix: "B",
+            title: {
+                text: "Traffic",
+            },
         },
         yaxis1: {
             side: 'left',
             domain: [0.5, 1],
+            fixedrange: true,
+            title: {
+                text: "Number of nodes",
+            },
+        },
+        xaxis1: {
+            fixedrange: true,
         },
         hovermode: 'x unified',
         updatemenus: [menus],
+        legend: {
+            orientation: 'h',
+        },
     };
 
     const makeArgs = (x) => {
@@ -267,6 +342,7 @@ function plotActiveNodeByCountry(node_data, traffic_data, earnings_data) {
             xaxis: 'x1',
             yaxis: 'y3',
             visible: false,
+            name: "Earnings",
         });
         traces.push({
             x: trace.nodes.x,
@@ -274,6 +350,7 @@ function plotActiveNodeByCountry(node_data, traffic_data, earnings_data) {
             xaxis: 'x1',
             yaxis: 'y1',
             visible: false,
+            name: "Nodes",
         });
         traces.push({
             x: trace.traffic.x,
@@ -281,6 +358,7 @@ function plotActiveNodeByCountry(node_data, traffic_data, earnings_data) {
             xaxis: 'x1',
             yaxis: 'y2',
             visible: false,
+            name: "Traffic",
         });
 
         menus.buttons.push({
@@ -297,7 +375,7 @@ function plotActiveNodeByCountry(node_data, traffic_data, earnings_data) {
     traces[2].visible = true;
 
     const element = document.getElementById("saturn-active-node-and-traffic");
-    Plotly.newPlot(element, traces, layout, { responsive: true });
+    Plotly.newPlot(element, traces, layout, PLOTLY_CONF);
 }
 
 // Plot the percentage of active Saturn nodes that do not receive traffic.
@@ -306,58 +384,78 @@ function plotActiveNodeWithoutTraffic(data) {
     data.forEach((e) => {
         x.push(e.date);
 
-        if (e.active_2h_count > 0) {
-            y_2h.push((e.active_not_serving_2h_count / e.active_2h_count) * 100);
-        } else {
-            y_2h.push(0);
-        }
-
-        if (e.active_6h_count > 0) {
-            y_6h.push((e.active_not_serving_6h_count / e.active_6h_count) * 100);
-        } else {
-            y_6h.push(0);
-        }
-
-        if (e.active_12h_count > 0) {
-            y_12h.push((e.active_not_serving_12h_count / e.active_12h_count) * 100);
-        } else {
-            y_12h.push(0);
-        }
-
-        if (e.active_24h_count > 0) {
-            y_24h.push((e.active_not_serving_24h_count / e.active_24h_count) * 100);
-        } else {
-            y_24h.push(0);
-        }
+        y_2h.push(e.active_not_serving_2h_count / e.active_2h_count);
+        y_6h.push(e.active_not_serving_6h_count / e.active_6h_count);
+        y_12h.push(e.active_not_serving_12h_count / e.active_12h_count);
+        y_24h.push(e.active_not_serving_24h_count / e.active_24h_count);
     });
 
     const traces = [{
         x: x,
         y: y_2h,
+        name: "2 hours",
     }, {
         x: x,
         y: y_6h,
+        name: "6 hours",
     }, {
         x: x,
         y: y_12h,
+        name: "12 hours",
     }, {
         x: x,
         y: y_24h,
+        name: "1 day",
     }];
 
+    const layout = {
+        hovermode: 'x unified',
+        legend: {
+            orientation: 'h',
+        },
+        xaxis: {
+            fixedrange: true,
+        },
+        yaxis: {
+            fixedrange: true,
+            title: {
+                text: "Percent of nodes",
+            },
+            tickformat: ".0%",
+        }
+    };
+
     const element = document.getElementById("saturn-active-node-without-traffic");
-    Plotly.newPlot(element, traces, { responsive: true });
+    Plotly.newPlot(element, traces, layout, PLOTLY_CONF);
 }
 
 // Plot Saturn active node age historgram.
 function plotActiveNodeAge(data) {
     const x = data.map((e) => e['age_days']);
 
-    const element = document.getElementById("saturn-active-node-age");
-    Plotly.newPlot(element, [{
+    const traces = [{
         x: x,
         type: 'histogram',
-    }], {}, { responsive: true });
+    }];
+
+    const layout = {
+        hovermode: 'x unified',
+        xaxis: {
+            fixedrange: true,
+            title: {
+                text: "Node age (days)",
+            },
+        },
+        yaxis: {
+            fixedrange: true,
+            title: {
+                text: "Number of nodes",
+            },
+        },
+    };
+
+    const element = document.getElementById("saturn-active-node-age");
+    Plotly.newPlot(element, traces, layout, PLOTLY_CONF);
 }
 
 // Plot correlation between node age and earnings and traffic.
@@ -374,35 +472,63 @@ function plotNodeAgeCorrelation(data) {
         x: x,
         y: y,
         mode: 'markers',
-        type: 'scatter'
+        type: 'scatter',
+        name: "Earnings",
     }, {
         x: x,
         y: y1,
-        xaxis: 'x2',
         yaxis: 'y2',
         mode: 'markers',
-        type: 'scatter'
+        type: 'scatter',
+        name: "Traffic",
     }];
 
     const layout = {
         grid: {
-            rows: 1,
-            columns: 2,
-            pattern: 'independent',
-        }
+            rows: 2,
+            columns: 1,
+        },
+        xaxis: {
+            fixedrange: true,
+            title: {
+                text: "Node age (days)",
+            },
+        },
+        yaxis: {
+            fixedrange: true,
+            title: {
+                text: "Estimated earnings",
+            },
+            tickformat: ".3~f",
+            ticksuffix: " FIL",
+        },
+        xaxis2: {
+            fixedrange: true,
+        },
+        yaxis2: {
+            fixedrange: true,
+            tickformat: ".2~s",
+            ticksuffix: "B",
+            title: {
+                text: "Traffic",
+            },
+        },
+        legend: {
+            orientation: 'h',
+        },
     };
 
     const element = document.getElementById("saturn-node-age-correlation");
-    Plotly.newPlot(element, traces, layout, { responsive: true });
+    Plotly.newPlot(element, traces, layout, PLOTLY_CONF);
 }
 
-// Plot the number of active Saturn nodes by country.
+// Plot the number of active Saturn nodes on a world map.
 function plotActiveNodeOnMap(data) {
     const locations = [], z = [];
 
     data.forEach((e) => {
-        locations.push(e['country']);
-        z.push(e['active_node_count']);
+        locations.push(e.country);
+        z.push(e.active_node_count);
     });
 
     const traces = [{
@@ -414,8 +540,8 @@ function plotActiveNodeOnMap(data) {
         reversescale: true,
     }];
 
-    const element = document.getElementById("saturn-active-node-by-country");
-    Plotly.newPlot(element, traces, {}, { responsive: true });
+    const element = document.getElementById("saturn-active-node-world");
+    Plotly.newPlot(element, traces, {}, PLOTLY_CONF);
 }
 
 // Plot earnings per node, node count and traffic by country.
@@ -453,6 +579,7 @@ function plotCountryStats(data) {
         y: locations,
         orientation: 'h',
         offsetgroup: 1,
+        name: "Earnings",
     }, {
         type: 'bar',
         x: node_count,
@@ -460,33 +587,53 @@ function plotCountryStats(data) {
         orientation: 'h',
         xaxis: 'x2',
         offsetgroup: 2,
+        name: "Nodes",
     }, {
         x: traffic,
         y: locations,
         xaxis: 'x3',
+        name: "Traffic",
     }];
 
     const layout = {
         xaxis: {
             side: 'top',
-            domain: [0, 0.5],
+            domain: [0, 0.75],
+            fixedrange: true,
+            title: {
+                text: "Estimated earnings per node",
+            },
+            tickformat: ".3~f",
+            ticksuffix: " FIL",
         },
         xaxis2: {
             overlaying: 'x',
             side: 'bottom',
-            domain: [0, 0.5],
+            domain: [0, 0.75],
+            fixedrange: true,
+            title: {
+                text: "Number of nodes",
+            },
         },
         xaxis3: {
             side: 'top',
-            domain: [0.5, 1],
+            domain: [0.75, 1],
+            fixedrange: true,
+            title: {
+                text: "Total traffic",
+            },
+            tickformat: ".2~s",
+            ticksuffix: "B",
         },
         barmode: 'group',
-        bargap: 0.5,
         hovermode: 'y unified',
+        legend: {
+            orientation: 'h',
+        },
     };
 
     const element = document.getElementById("saturn-country-stats");
-    Plotly.newPlot(element, traces, layout, { responsive: true });
+    Plotly.newPlot(element, traces, layout, PLOTLY_CONF);
 }
 
 // Plot earnings and traffic distribution (x percent of nodes receive y percent of traffic).
@@ -515,30 +662,59 @@ function plotActiveNodeDistribution(data) {
     const x = [], y = [];
     let earnings_sum = 0;
     for (let i = 0; i < earnings_data.length; i++) {
-        const node_percent = (i / earnings_data.length) * 100;
+        const node_percent = i / earnings_data.length;
         x.push(node_percent);
 
         earnings_sum += earnings_data[i];
-        const earnings_percent = (earnings_sum / earnings_total) * 100;
+        const earnings_percent = earnings_sum / earnings_total;
         y.push(earnings_percent);
     }
 
     let x1 = [], y1 = [];
     let bandwith_sum = 0;
     for (let i = 0; i < bandwidth_data.length; i++) {
-        const node_percent = (i / bandwidth_data.length) * 100;
+        const node_percent = i / bandwidth_data.length;
         x1.push(node_percent);
 
         bandwith_sum += bandwidth_data[i];
-        const bandwidth_percent = (bandwith_sum / bandwidth_total) * 100;
+        const bandwidth_percent = bandwith_sum / bandwidth_total;
         y1.push(bandwidth_percent);
     }
 
+    const traces = [{
+        x: x,
+        y: y,
+        name: "Earnings",
+    }, {
+        x: x1,
+        y: y1,
+        name: "Traffic",
+    }];
+
+    const layout = {
+        hovermode: 'x unified',
+        legend: {
+            orientation: 'h',
+        },
+        xaxis: {
+            fixedrange: true,
+            title: {
+                text: "Percent of nodes",
+            },
+            tickformat: ".2~%",
+            type: 'log',
+            autorange: true,
+        },
+        yaxis: {
+            fixedrange: true,
+            tickformat: ".0%",
+            type: 'log',
+            autorange: true,
+        },
+    };
+
     const element = document.getElementById("saturn-active-node-distribution");
-    Plotly.newPlot(element, [
-        { x: x, y: y },
-        { x: x1, y: y1 },
-    ], {}, { responsive: true });
+    Plotly.newPlot(element, traces, layout, PLOTLY_CONF);
 }
 
 // Concurrently download all data.
@@ -565,11 +741,14 @@ const retrievals_data = parseRetrievals(text[7]);
 const duration_data = parseResponseDuration(text[8]);
 
 plotActiveNodeAndTraffic(active_node_data, traffic_data);
-plotActiveNodeWithoutTraffic(active_node_data);
-plotActiveNodeAge(active_node_stats_data);
-plotNodeAgeCorrelation(active_node_stats_data);
+plotRetrievals(retrievals_data, duration_data);
+
 plotActiveNodeOnMap(country_stats_data);
 plotCountryStats(country_stats_data);
-plotActiveNodeDistribution(active_node_stats_data);
 plotActiveNodeByCountry(active_node_by_country_data, traffic_by_country_data, earnings_by_country_data);
-plotRetrievals(retrievals_data, duration_data);
+
+plotActiveNodeWithoutTraffic(active_node_data);
+plotActiveNodeDistribution(active_node_stats_data);
+
+plotActiveNodeAge(active_node_stats_data);
+plotNodeAgeCorrelation(active_node_stats_data);
