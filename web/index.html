@@ -12,9 +12,10 @@
 
     <h2 id="network-size-and-traffic">Network Size & Traffic</h2>
     <p>
-        The total number of nodes is estimated using the number of unique node IDs reported by <a
+        The total number of nodes is estimated using the number of unique node IDs reported by the <a
             href="https://orchestrator.strn.pl/stats">orchestrator API</a> as "active".
-        Traffic is estimated using <a href="https://uc2x7t32m6qmbscsljxoauwoae0yeipw.lambda-url.us-west-2.on.aws">lambda
+        Traffic is estimated using the <a
+            href="https://uc2x7t32m6qmbscsljxoauwoae0yeipw.lambda-url.us-west-2.on.aws">lambda
             API</a> that is used by <a href="https://dashboard.saturn.tech/address/all">Saturn Dashboard</a>.
     </p>
 
@@ -25,7 +26,7 @@
     <p>
         Time to First Byte (TTFB) is a metric that measures the time between the request for a resource and when the
         first byte of a response begins to arrive.
-        To construct this chart, per hour TTFB percentiles for every node in the network were scrapped from <a
+        To construct this chart, per hour TTFB percentiles for every node in the network were scrapped from the <a
             href="https://orchestrator.strn.pl/stats">orchestrator API</a>.
         The total number of retrievals is estimated using <a
             href="https://uc2x7t32m6qmbscsljxoauwoae0yeipw.lambda-url.us-west-2.on.aws">lambda
@@ -36,7 +37,7 @@
 
     <h2 id="network-geography">Network Geography</h2>
     <p>
-        The total number of nodes is estimated using the number of unique node IDs reported by <a
+        The total number of nodes is estimated using the number of unique node IDs reported by the <a
             href="https://orchestrator.strn.pl/stats">orchestrator API</a> as "active" during the month.
     </p>
 
@@ -49,7 +50,8 @@
         Earnings are estimated by combining per node info scrapped from <a
             href="https://uc2x7t32m6qmbscsljxoauwoae0yeipw.lambda-url.us-west-2.on.aws">lambda
             API</a> that is used by <a href="https://dashboard.saturn.tech/address/all">Saturn Dashboard</a> with
-        the physical location of the node reported by <a href="https://orchestrator.strn.pl/stats">orchestrator API</a>.
+        the physical location of the node reported by the <a href="https://orchestrator.strn.pl/stats">orchestrator
+            API</a>.
         Note that such estimation is a bit rough because earnings and traffic are <a href="#nodes-without-traffic">not
             distributed evenly</a>.
         Traffic is the total bandwidth served by each country during the month.
@@ -74,26 +76,58 @@
     <p>
         This chart shows the percentage of nodes that haven't been receiving any traffic despite being continuously
         active for a given period. For example, to estimate it for 2 hour period we take all the nodes that were
-        continuously reported as active by <a href="https://orchestrator.strn.pl/stats">orchestrator API</a> during the
-        past 2 hours. For every node ID in this list, we calculate its traffic for the past 2 hours using <a
-            href="https://uc2x7t32m6qmbscsljxoauwoae0yeipw.lambda-url.us-west-2.on.aws">lambda API</a> that is used by
-        <a href="https://dashboard.saturn.tech/address/all">Saturn Dashboard</a>.
+        continuously reported as active by the <a href="https://orchestrator.strn.pl/stats">orchestrator API</a> during
+        the
+        past 2 hours. For every node ID in this list, we calculate its traffic for the past 2 hours using the <a
+            href="https://uc2x7t32m6qmbscsljxoauwoae0yeipw.lambda-url.us-west-2.on.aws">lambda
+            API</a> that is used by <a href="https://dashboard.saturn.tech/address/all">Saturn Dashboard</a>.
         The result is the ratio between nodes without traffic and the active nodes.
     </p>
     <p>
         Gaps on the chart might be caused by several reasons. Including but not limited to issues with our API scrapper,
-        issues with orchestrator or lambda API, or issues with the Saturn network itself.
+        issues with the orchestrator or the lambda API, or issues with the Saturn network itself.
     </p>
 
     <div id="saturn-active-node-without-traffic"></div>
 
     <h2 id="earnings-and-traffic-distribution">Earnings & Traffic Distribution</h2>
+    <p>
+        To construct this chart, first, we calculate earnings and traffic for every node that was reported as "active"
+        by the <a href="https://orchestrator.strn.pl/stats">orchestrator API</a> during the month. Earnings and traffic
+        are estimated using info scrapped from the <a
+            href="https://uc2x7t32m6qmbscsljxoauwoae0yeipw.lambda-url.us-west-2.on.aws">lambda
+            API</a> that is used by <a href="https://dashboard.saturn.tech/address/all">Saturn Dashboard</a>. Then we
+        create two lists of node IDs, sorted in descending order. One is sorted by earnings, and another
+        one is sorted by traffic. Now, for each node in each list, we calculate what percentage of the network this node
+        and the nodes above it in the list make up. We plot this value on the X asix. On the Y axis, for each node in
+        each list, we plot the cumulative percentage of earnings and traffic this node and the nodes above it in the
+        list receive.
+    </p>
+    <p>
+        Therefore, we have the chart that shows that X percent of the network receives Y percent of the network's
+        traffic or earnings.
+    </p>
+
     <div id="saturn-active-node-distribution"></div>
 
     <h2 id="node-age">Node Age</h2>
+    <p>
+        To estimate the age of a node we subtract the node creation timestamp from the time when the node was last
+        reported "active" by the <a href="https://orchestrator.strn.pl/stats">orchestrator API</a>. Node creation
+        timestamp is also scrapped using the orchestrator API.
+    </p>
+
     <div id="saturn-active-node-age"></div>
 
     <h2 id="node-age-corellation">Correlation Between Node Age and Earnings & Traffic</h2>
+    <p>
+        Each marker on this chart is a node where its X coordinate is the node's age and its Y coordinate is the node's
+        earnings or traffic during the month. Age is estimated similarly to the above. Earnings and traffic are
+        estimated using info scrapped from the <a
+            href="https://uc2x7t32m6qmbscsljxoauwoae0yeipw.lambda-url.us-west-2.on.aws">lambda
+            API</a> that is used by <a href="https://dashboard.saturn.tech/address/all">Saturn Dashboard</a>.
+    </p>
+
     <div id="saturn-node-age-correlation"></div>
 
     <script type="module" src="main.js"></script>
