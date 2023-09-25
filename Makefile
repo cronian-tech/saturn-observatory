@@ -9,13 +9,13 @@ bacalhau-push:
 
 bacalhau-analytics:
 	docker run -it --rm ghcr.io/bacalhau-project/bacalhau \
-		docker run --input ipfs://bafybeiakaumxombnek2ayfqojrzb4fhxjjnygz2jjczif2p65wva32yvtu \
+		docker run --input ipfs://${cid} \
 		31z4/bacalhau-duckdb:${BACALHAU_DUCKDB_VER} -- \
 		./duckdb -init /init.sql -echo -s $(shell printf %q "`cat analytics.sql`") db
 
 duckdb-analytics:
-	docker compose -f duckdb/compose.yaml run -i --rm \
-		duckdb -echo -s $(shell printf %q "`cat analytics.sql`") db
+	YEAR=${year} MONTH=${month} docker compose -f duckdb/compose.yaml run -i --rm \
+		duckdb -echo -s $(shell printf %q "`cat analytics.sql`") db-${year}-${month}
 
 web3-storage-upload-inputs:
 	docker compose -f web3-storage/compose.yaml run -i --rm \

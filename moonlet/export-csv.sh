@@ -4,9 +4,16 @@ set -e
 
 SCRIPT_DIR=$(dirname "$0")
 
+# Start and end date must be in a form of YYYY-MM-DD.
+START_DATE=${1}
+END_DATE=${2}
+
+YEAR=${START_DATE:0:4}
+MONTH=${START_DATE:5:2}
+
 # Use hive partitioning.
 # See https://duckdb.org/docs/data/partitioning/hive_partitioning#hive-partitioning
-DATA_DIR='data/inputs/year=2023/month=8'
+DATA_DIR="data/inputs/year=${YEAR}/month=${MONTH}"
 
 # This script assumes that VictoriaMetrics container is already running.
 # If it's not start it with the following command:
@@ -22,6 +29,8 @@ function curl_export {
     curl http://localhost:8428/api/v1/export/csv \
         -d "format=${METRIC_FORMAT}" \
         -d "match[]=${METRIC_NAME}" \
+        -d "start=${START_DATE}T00:00:00Z" \
+        -d "end=${END_DATE}T00:00:00Z" \
     >> "${DATA_DIR}/${METRIC_NAME}.csv"
 
     gzip "${DATA_DIR}/${METRIC_NAME}.csv"
@@ -36,8 +45,8 @@ function python_export {
 
     python3 "${SCRIPT_DIR}/export.py" \
         "${METRIC_QUERY}" \
-        "2023-08-01T00:00:00Z" \
-        "2023-09-01T00:00:00Z" \
+        "${START_DATE}T00:00:00Z" \
+        "${END_DATE}T00:00:00Z" \
         "${DATA_DIR}/${METRIC_NAME}.csv"
 
     gzip "${DATA_DIR}/${METRIC_NAME}.csv"

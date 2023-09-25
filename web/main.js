@@ -1,7 +1,19 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm";
 import "https://cdn.plot.ly/plotly-2.26.0.min.js";
 
-const DATA_BASE_URL = "https://ipfs.io/ipfs/bafybeiejnkkjzuhrpyxnwgz3yfhccsao2yxudiwyczjznbshidksfru3sa/year=2023/month=8";
+const params = new URL(window.location.href).searchParams;
+let year = params.get('year');
+if (year === null) {
+    year = "2023";
+}
+let month = params.get('month');
+if (month === null) {
+    month = "09";
+}
+
+function dataUrl(file) {
+    return `https://ipfs.io/ipfs/bafybeif2azqt63x44bbe4w72nuhr3vtvkkfibty4lhdxu62iddykddg5wq/year=${year}/month=${month}/${file}`
+}
 
 const PLOTLY_CONF = {
     responsive: true,
@@ -722,15 +734,15 @@ function plotActiveNodeDistribution(data) {
 
 // Concurrently download all data.
 const text = await Promise.all([
-    d3.text(DATA_BASE_URL + "/saturn_active_node.csv"),
-    d3.text(DATA_BASE_URL + "/saturn_active_node_stats.csv"),
-    d3.text(DATA_BASE_URL + "/saturn_country_stats.csv"),
-    d3.text(DATA_BASE_URL + "/saturn_traffic.csv"),
-    d3.text(DATA_BASE_URL + "/saturn_active_node_by_country.csv"),
-    d3.text(DATA_BASE_URL + "/saturn_traffic_by_country.csv"),
-    d3.text(DATA_BASE_URL + "/saturn_earnings_by_country.csv"),
-    d3.text(DATA_BASE_URL + "/saturn_retrievals.csv"),
-    d3.text(DATA_BASE_URL + "/saturn_response_duration.csv"),
+    d3.text(dataUrl("/saturn_active_node.csv")),
+    d3.text(dataUrl("/saturn_active_node_stats.csv")),
+    d3.text(dataUrl("/saturn_country_stats.csv")),
+    d3.text(dataUrl("/saturn_traffic.csv")),
+    d3.text(dataUrl("/saturn_active_node_by_country.csv")),
+    d3.text(dataUrl("/saturn_traffic_by_country.csv")),
+    d3.text(dataUrl("/saturn_earnings_by_country.csv")),
+    d3.text(dataUrl("/saturn_retrievals.csv")),
+    d3.text(dataUrl("/saturn_response_duration.csv")),
 ]);
 
 const active_node_data = parseActiveNode(text[0]);

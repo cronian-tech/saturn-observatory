@@ -6,8 +6,8 @@ services:
     working_dir: /data
     volumes:
       - duckdb-data:/data
-      - ../data/inputs/year=2023/month=8:/inputs
-      - ../data/outputs/year=2023/month=8:/outputs
+      - ../data/inputs/year=${YEAR}/month=${MONTH}:/inputs
+      - ../data/outputs/year=${YEAR}/month=${MONTH}:/outputs
 
 volumes:
   duckdb-data:
