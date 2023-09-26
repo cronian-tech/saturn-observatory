@@ -50,7 +50,7 @@ The following is a more detailed explanation of each step.
 
         ./moonlet/export-csv.sh 2023-09-01 2023-10-01
 
-    This shell script uses VictoriaMetrics export API for some metrics and a small Python script for others. This is because for some metrics we need to run an aggregation query (e.g., `increase(saturn_node_retrievals_total)`).
+    This [shell script](moonlet/export-csv.sh) uses VictoriaMetrics export API for some metrics and a small [Python script](moonlet/export.py) for others. This is because for some metrics we need to run an aggregation query (e.g., `increase(saturn_node_retrievals_total)`).
 
 4. Now we have raw CSV data that we upload and pin to IPFS and store on Filecoin using [web3.storage](https://web3.storage):
 
@@ -70,7 +70,7 @@ The following is a more detailed explanation of each step.
 
 7. Finally, we plug the CID that we get from the previous step into `dataUrl` function of [`web/main.js`](web/main.js). We commit and push this change to the project's repo and the Saturn Observatory website gets published using GitHub pages.
 
-8. When we open the Saturn Observatory website, CSV data from step 6 is fetched using the Saturn browser client and then plotted using [PlotlyJS](https://plotly.com/javascript).
+8. When we open the Saturn Observatory website, CSV data from step 6 is fetched using the [Saturn browser client](https://github.com/filecoin-saturn/browser-client) and then plotted using [PlotlyJS](https://plotly.com/javascript).
 
 ## License
 
