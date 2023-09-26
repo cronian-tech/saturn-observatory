@@ -6,10 +6,21 @@ We use historical data about the network gathered by [Saturn Moonlet](https://gi
 
 Saturn Observatory compliments official tools like [Saturn Node Dashboard](https://dashboard.saturn.tech) and [Saturn Explorer](https://explorer.saturn.tech), aiming to provide better insights into the network state and performance. To highlight a few:
 
-* [Network Size & Traffic](https://31z4.github.io/saturn-observatory#network-size-and-traffic) shows the number of Saturn nodes and network traffic over time.
-* [Time to First Byte & Retrievals](https://31z4.github.io/saturn-observatory#ttfb-and-retrievals) estimates the time between the request for a resource and when the first byte of a response begins to arrive to Saturn clients.
-* [Earnings & Traffic by Country](https://31z4.github.io/saturn-observatory#earnings-and-traffic-by-country) can help node operators identify saturated (in terms of node count) regions and find the most advantageous geographical locations.
-* [Nodes Without Traffic](https://31z4.github.io/saturn-observatory#nodes-without-traffic) may highlight issues with network traffic distribution.
+#### [Network Size & Traffic](https://31z4.github.io/saturn-observatory/#network-size-and-traffic) shows the number of Saturn nodes and network traffic over time.
+
+<img width="931" alt="image" src="https://github.com/31z4/saturn-observatory/assets/3657959/0d89ae2b-6f8c-4227-a425-e75aa83e5737">
+
+#### [Time to First Byte & Retrievals](https://31z4.github.io/saturn-observatory/#ttfb-and-retrievals) estimates the time between the request for a resource and when the first byte of a response begins to arrive to Saturn clients.
+
+<img width="924" alt="image" src="https://github.com/31z4/saturn-observatory/assets/3657959/19b21f65-5acc-4432-b8da-c29125679817">
+
+#### [Earnings & Traffic by Country](https://31z4.github.io/saturn-observatory/#earnings-and-traffic-by-country) can help node operators identify saturated (in terms of node count) regions and find the most advantageous geographical locations.
+
+<img width="917" alt="image" src="https://github.com/31z4/saturn-observatory/assets/3657959/2abdeaa8-019f-46c1-bc59-23988102cb21">
+
+#### [Nodes Without Traffic](https://31z4.github.io/saturn-observatory/#nodes-without-traffic) may highlight issues with network traffic distribution.
+
+<img width="887" alt="image" src="https://github.com/31z4/saturn-observatory/assets/3657959/d09b73d8-b6d3-4040-98c4-fe4146d5eebb">
 
 Head over to Saturn Observatory [website](https://31z4.github.io/saturn-observatory) to see the full report. If you're curious, you can see [how the project is made](#how-its-made).
 
