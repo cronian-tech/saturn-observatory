@@ -1,8 +1,8 @@
-# Saturn Observatory
+# 🔭 Saturn Observatory
 
-The goal of this project is to increase the transparency of [Filecoin Saturn](https://saturn.tech) network – the fastest growing, community-run distributed content delivery network (CDN) for Web3.
+The goal of this project is to increase the transparency of 🪐 [Filecoin Saturn](https://saturn.tech) network – the fastest growing, community-run distributed content delivery network (CDN) for Web3.
 
-We use historical data about the network gathered by [Saturn Moonlet](https://github.com/31z4/saturn-moonlet) to prepare and publish analytical reports on Saturn Observatory [website](https://31z4.github.io/saturn-observatory) every month. Raw data that is used to generate the reports [is available](https://ipfs.io/ipfs/bafybeib4mvhfuly764igrqvlwknsc23xquj3sbvbjwfrwritpfwfkg4e3e) on IPFS and Filecoin.
+We use historical data about the network gathered by 🌖 [Saturn Moonlet](https://github.com/31z4/saturn-moonlet) to prepare and publish analytical reports on Saturn Observatory [website](https://31z4.github.io/saturn-observatory) every month. Raw data that is used to generate the reports [is available](https://ipfs.io/ipfs/bafybeib4mvhfuly764igrqvlwknsc23xquj3sbvbjwfrwritpfwfkg4e3e) on IPFS and Filecoin.
 
 Saturn Observatory compliments official tools like [Saturn Node Dashboard](https://dashboard.saturn.tech) and [Saturn Explorer](https://explorer.saturn.tech), aiming to provide better insights into the network state and performance. To highlight a few:
 
@@ -27,7 +27,7 @@ Head over to Saturn Observatory [website](https://31z4.github.io/saturn-observat
 Saturn Observatory is neither affiliated with the [Filecoin Saturn](https://github.com/filecoin-saturn) project nor the [Protocol Labs](https://protocol.ai) organization.
 However, it was built during the [Open Data Hack](https://ethglobal.com/showcase/saturn-moonlet-c4583) powered by Filecoin.
 
-## How it's made
+## 🛠 How it's made
 
 To create reports we export historical data about the Saturn network from a running [Saturn Moonlet](http://demo.moonlet.zanko.dev) instance into a set of [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) files. We run a bunch of analytical [SQL queries](analytics.sql) against these files and output results into CSVs. Finally, we use the results to generate plots and publish them on the Saturn Observatory website.
 
