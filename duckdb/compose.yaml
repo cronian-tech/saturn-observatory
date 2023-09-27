@@ -2,7 +2,6 @@ services:
   duckdb:
     build: .
     pull_policy: build
-    command: db
     working_dir: /data
     volumes:
       - duckdb-data:/data

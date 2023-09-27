@@ -1,3 +1,4 @@
 data/
 w3-nodejs/
+.env
 snapshot.tar.gz

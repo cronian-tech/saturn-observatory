@@ -1,5 +1,14 @@
 BACALHAU_DUCKDB_VER := 0.0.1
 
+lilypad-analytics:
+	docker compose -f lilypad/compose.yaml run -i --rm \
+		lilypad run \
+		--module-repo https://github.com/31z4/lilypad-duckdb \
+		--module-hash test-v2 \
+		--module-path lilypad_module.json.tmpl \
+		-i InputsCID=bafybeifekw6gxwomntzvfrp2fxzwjah5l6vrbivfunxns4zyeqom77f6sy \
+		-i Query='pragma version;'
+
 # Bacalhau supports only amd64 images.
 bacalhau-build:
 	docker build --platform linux/amd64 -t 31z4/bacalhau-duckdb:${BACALHAU_DUCKDB_VER} bacalhau

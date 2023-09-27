@@ -1,0 +1,9 @@
+services:
+  lilypad:
+    # Lilypad CLI supports only amd64 Linux at the moment.
+    platform: linux/amd64
+    build: .
+    pull_policy: build
+    env_file: .env
+    volumes:
+      - ../data/lilypad:/tmp/lilypad/data/downloaded-files
