@@ -62,7 +62,7 @@ The following is a more detailed explanation of each step.
 
         make bacalhau-analytics cid=bafybeiarymtc6w32n2ud6w27vbhjqf2seax65l2rrfsfyucxc4gjutugni
 
-    We wanted to use [Lilypad](https://docs.lilypadnetwork.org) to run the analysis and made a couple of PRs ([one](https://github.com/bacalhau-project/lilypad-modicum/pull/80), [two](https://github.com/bacalhau-project/lilypad-docs/pull/9)) with a custom DuckDB module. But, by the time of writing the module is not yet available on Lilypad v1 testnet. This was blocked on Lilypad's team.
+    We wanted to use [Lilypad](https://docs.lilypadnetwork.org) to run the analysis and made a couple of PRs ([one](https://github.com/bacalhau-project/lilypad-modicum/pull/80), [two](https://github.com/bacalhau-project/lilypad-docs/pull/9), [three](https://github.com/31z4/lilypad-duckdb)) with a custom DuckDB module. But, by the time of writing the module is not yet available on Lilypad testnet. This was mostly blocked on Lilypad's team.
 
 6. Once the Bacalhau job finishes we download its results and make sure that these results are adequate (check for outliers, empty values, compare with the previous month, etc.). Then store the results in IPFS and Filecoin using web3.storage:
 
