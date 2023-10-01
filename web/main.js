@@ -12,7 +12,7 @@ if (month === null) {
 }
 
 function dataUrl(file) {
-    return `https://ipfs.io/ipfs/bafybeif2azqt63x44bbe4w72nuhr3vtvkkfibty4lhdxu62iddykddg5wq/year=${year}/month=${month}/${file}`
+    return `https://ipfs.io/ipfs/bafybeih4klyygcz3ii5ykbdetqkpgdphe5xpegxbsokk7hcfdpvknsl4uy/year=${year}/month=${month}/${file}`;
 }
 
 const PLOTLY_CONF = {

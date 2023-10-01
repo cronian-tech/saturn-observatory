@@ -31,3 +31,9 @@ web3-storage-token:
 
 web-serve:
 	python3 -m http.server -d web
+
+clean-vm:
+	docker compose -f moonlet/compose.yaml down -v
+
+clean-duckdb:
+	docker compose -f duckdb/compose.yaml down -v

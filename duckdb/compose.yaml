@@ -2,7 +2,7 @@ services:
   duckdb:
     build: .
     pull_policy: build
-    command: db
+    command: db-${YEAR}-${MONTH}
     working_dir: /data
     volumes:
       - duckdb-data:/data
