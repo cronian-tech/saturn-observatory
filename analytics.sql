@@ -47,9 +47,9 @@ SELECT
     node_id,
     sum(estimated_earnings_fil) as estimated_earnings_fil
 FROM saturn_node_estimated_earnings
--- Earnings on 2023-08-01 looks abnormally high. Need to figure out this later.
 WHERE
-    observed_at >= '2023-08-02'
+    -- Earnings on the first day of a month are abnormally high. Need to figure out this later.
+    dayofmonth(observed_at) != 1
     -- Explicitly filter out core node earnings.
     AND node_id NOT IN (
         SELECT DISTINCT node_id
@@ -310,9 +310,9 @@ COPY (
         sum(estimated_earnings_fil) AS estimated_earnings_fil
     FROM saturn_node_estimated_earnings
     JOIN node_country USING (node_id)
-    -- Earnings on 2023-08-01 looks abnormally high. Need to figure out this later.
     WHERE
-        observed_at >= '2023-08-02'
+        -- Earnings on the first day of a month are abnormally high. Need to figure out this later.
+        dayofmonth(observed_at) != 1
         -- Explicitly filter out core node earnings.
         AND node_id NOT IN (
             SELECT DISTINCT node_id
