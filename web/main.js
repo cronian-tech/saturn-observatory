@@ -536,11 +536,13 @@ function plotNodeAgeCorrelation(data) {
 
 // Plot the number of active Saturn nodes on a world map.
 function plotActiveNodeOnMap(data) {
-    const locations = [], z = [];
+    const locations = [], z = [], customdata = [];
 
     data.forEach((e) => {
         locations.push(e.country);
-        z.push(e.active_node_count);
+        customdata.push(e.active_node_count);
+        // Use log scale because node distribution is quite skewed in some areas.
+        z.push(Math.log10(e.active_node_count));
     });
 
     const traces = [{
@@ -550,9 +552,13 @@ function plotActiveNodeOnMap(data) {
         z: z,
         colorscale: "Blues",
         reversescale: true,
+        customdata: customdata,
+        hovertemplate: '%{customdata}<extra>%{location}</extra>',
         colorbar: {
             title: 'Number of nodes',
-        }
+            tickvals: [0, 0.48, 1, 1.48, 2, 2.48, 3, 3.54],
+            ticktext: ['1', '3', '10', '30', '100', '300', '1000', '3500'],
+        },
     }];
 
     const element = document.getElementById("saturn-active-node-world");
