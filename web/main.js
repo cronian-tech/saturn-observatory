@@ -12,7 +12,7 @@ if (month === null) {
 }
 
 function dataUrl(file) {
-    return `https://gateway.ipfs.io/ipfs/bafybeifo66hsjwfxdqgdmxfjtm5ln6uyf5s43yxlehjqzuqyuy2iqglnpm/year=${year}/month=${month}/${file}`;
+    return `https://gateway.ipfs.io/ipfs/bafybeicilunqh62t5ccg65will6pquv6eoyw2kyp2sarcts2l2vvfd4epe/year=${year}/month=${month}/${file}`;
 }
 
 const PLOTLY_CONF = {
@@ -175,55 +175,21 @@ function plotActiveNodeAndTraffic(node_data, traffic_data) {
 }
 
 // Plot the number of network retrievals over time.
-function plotRetrievals(retrievals_data, duration_data) {
+function plotRetrievals(retrievals_data) {
     const x = [], y = [];
     retrievals_data.forEach((e) => {
         x.push(e.date);
         y.push(e.retrievals);
     });
 
-    const x1 = [], y5 = [], y50 = [], y95 = [];
-    duration_data.forEach((e) => {
-        x1.push(e.date);
-        y5.push(e.p5 / 1000);
-        y50.push(e.p50 / 1000);
-        y95.push(e.p95 / 1000);
-    });
-
     const traces = [{
         x: x,
         y: y,
         type: 'bar',
-        opacity: 0.5,
         name: "Retrievals"
-    }, {
-        x: x1,
-        y: y5,
-        yaxis: 'y2',
-        name: "p5 TTFB",
-    }, {
-        x: x1,
-        y: y50,
-        yaxis: 'y2',
-        name: "p50 TTFB",
-    }, {
-        x: x1,
-        y: y95,
-        yaxis: 'y2',
-        name: "p95 TTFB",
     }];
 
     const layout = {
-        yaxis2: {
-            overlaying: 'y',
-            side: 'right',
-            fixedrange: true,
-            title: {
-                text: "TTFB",
-            },
-            tickformat: ".3~s",
-            ticksuffix: "s",
-        },
         yaxis: {
             fixedrange: true,
             title: {
@@ -748,7 +714,6 @@ const text = await Promise.all([
     d3.text(dataUrl("/saturn_traffic_by_country.csv")),
     d3.text(dataUrl("/saturn_earnings_by_country.csv")),
     d3.text(dataUrl("/saturn_retrievals.csv")),
-    d3.text(dataUrl("/saturn_response_duration.csv")),
 ]);
 
 const active_node_data = parseActiveNode(text[0]);
@@ -759,10 +724,9 @@ const active_node_by_country_data = parseActiveNodeByCountry(text[4]);
 const traffic_by_country_data = parseTrafficByCountry(text[5]);
 const earnings_by_country_data = parseEarningsByCountry(text[6]);
 const retrievals_data = parseRetrievals(text[7]);
-const duration_data = parseResponseDuration(text[8]);
 
 plotActiveNodeAndTraffic(active_node_data, traffic_data);
-plotRetrievals(retrievals_data, duration_data);
+plotRetrievals(retrievals_data);
 
 plotActiveNodeOnMap(country_stats_data);
 plotCountryStats(country_stats_data);

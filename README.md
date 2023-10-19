@@ -10,10 +10,6 @@ Saturn Observatory compliments official tools like [Saturn Node Dashboard](https
 
 <img width="931" alt="image" src="https://github.com/31z4/saturn-observatory/assets/3657959/0d89ae2b-6f8c-4227-a425-e75aa83e5737">
 
-#### [Time to First Byte & Retrievals](https://31z4.github.io/saturn-observatory/#ttfb-and-retrievals) estimates the time between the request for a resource and when the first byte of a response begins to arrive to Saturn clients.
-
-<img width="924" alt="image" src="https://github.com/31z4/saturn-observatory/assets/3657959/19b21f65-5acc-4432-b8da-c29125679817">
-
 #### [Earnings & Traffic by Country](https://31z4.github.io/saturn-observatory/#earnings-and-traffic-by-country) can help node operators identify saturated (in terms of node count) regions and find the most advantageous geographical locations.
 
 <img width="917" alt="image" src="https://github.com/31z4/saturn-observatory/assets/3657959/2abdeaa8-019f-46c1-bc59-23988102cb21">
@@ -70,7 +66,7 @@ The following is a more detailed explanation of each step.
 
 7. Finally, we plug the CID that we get from the previous step into `dataUrl` function of [`web/main.js`](web/main.js). We commit and push this change to the project's repo and the Saturn Observatory website gets published using GitHub pages.
 
-8. When we open the Saturn Observatory website, CSV data from step 6 is fetched using the [Saturn browser client](https://github.com/filecoin-saturn/browser-client) and then plotted using [PlotlyJS](https://plotly.com/javascript).
+8. When you open the Saturn Observatory website, CSV data from step 6 is fetched using the [Saturn browser client](https://github.com/filecoin-saturn/browser-client) and then plotted using [PlotlyJS](https://plotly.com/javascript).
 
 ## License
 
