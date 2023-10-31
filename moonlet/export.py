@@ -1,10 +1,16 @@
 import csv
+import gzip
 import json
+import os
 import sys
+from base64 import standard_b64encode
 from datetime import datetime
 from urllib import request
 
-API_URL = "http://localhost:8428/api/v1/query_range"
+EXPORTER_USER = "exporter"
+EXPORTER_PASSWORD = os.environ["EXPORTER_PASSWORD"]
+
+API_URL = "https://victoria.moonlet.zanko.dev/api/v1/query_range"
 
 # 60m is the best step for the metrics that this script is assumed to be working with:
 # - saturn_node_bandwidth_served_bytes_total
@@ -17,15 +23,22 @@ API_URL = "http://localhost:8428/api/v1/query_range"
 QUERY_STEP = "60m"
 
 
-def query_url(query, start, end):
-    return f"{API_URL}?query={query}&step={QUERY_STEP}&start={start}&end={end}"
-
+def make_request(query, start, end):
+    credentials = f"{EXPORTER_USER}:{EXPORTER_PASSWORD}".encode()
+    return request.Request(
+        f"{API_URL}?query={query}&step={QUERY_STEP}&start={start}&end={end}",
+        headers={
+            "Authorization": b"Basic " + standard_b64encode(credentials),
+            "Accept-Encoding": "gzip",
+        },
+    )
 
 if __name__ == "__main__":
     _, query, start, end, output_path = sys.argv
 
-    with request.urlopen(query_url(query, start, end)) as response:
-        response = json.loads(response.read())
+    with request.urlopen(make_request(query, start, end)) as response:
+        content = gzip.decompress(response.read())
+        response = json.loads(content)
 
         with open(output_path, "a") as f:
             w = csv.writer(f)

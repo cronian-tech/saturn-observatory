@@ -2,6 +2,8 @@
 
 set -e
 
+EXPORTER_PASSWORD=${EXPORTER_PASSWORD?must be set}
+
 SCRIPT_DIR=$(dirname "$0")
 
 # Start and end date must be in a form of YYYY-MM-DD.
@@ -15,10 +17,6 @@ MONTH=${START_DATE:5:2}
 # See https://duckdb.org/docs/data/partitioning/hive_partitioning#hive-partitioning
 DATA_DIR="data/inputs/year=${YEAR}/month=${MONTH}"
 
-# This script assumes that VictoriaMetrics container is already running.
-# If it's not start it with the following command:
-# docker compose -f moonlet/compose.yaml up -d
-
 function curl_export {
     local METRIC_NAME=${1}
     local METRIC_FORMAT=${2}
@@ -26,7 +24,8 @@ function curl_export {
 
     echo "${CSV_HEADER}" > "${DATA_DIR}/${METRIC_NAME}.csv"
 
-    curl http://localhost:8428/api/v1/export/csv \
+    curl --compressed https://victoria.moonlet.zanko.dev/api/v1/export/csv \
+        -u "exporter:${EXPORTER_PASSWORD}" \
         -d "format=${METRIC_FORMAT}" \
         -d "match[]=${METRIC_NAME}" \
         -d "start=${START_DATE}T00:00:00Z" \
@@ -43,6 +42,7 @@ function python_export {
 
     echo "${CSV_HEADER}" > "${DATA_DIR}/${METRIC_NAME}.csv"
 
+    EXPORTER_PASSWORD="${EXPORTER_PASSWORD}" \
     python3 "${SCRIPT_DIR}/export.py" \
         "${METRIC_QUERY}" \
         "${START_DATE}T00:00:00Z" \
