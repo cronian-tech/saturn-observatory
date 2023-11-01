@@ -128,7 +128,8 @@ COPY (
     node_age AS (
         SELECT
             node_id,
-            datepart('day', last_active_at - epoch_ms(created_at)) AS age_days
+            -- Some created_at values are DOUBLE so we have to cast to BIGINT.
+            datepart('day', last_active_at - epoch_ms(CAST(created_at AS BIGINT))) AS age_days
         FROM last_active
         JOIN created
         USING (node_id)
