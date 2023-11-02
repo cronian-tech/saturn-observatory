@@ -12,7 +12,7 @@ if (month === null) {
 }
 
 function dataUrl(file) {
-    return `https://gateway.ipfs.io/ipfs/bafybeibd2uxwsdycccx7r5tdemjg7gkw5bnvctld3lbvavmfwa57lcqmju/year=${year}/month=${month}/${file}`;
+    return `https://gateway.ipfs.io/ipfs/bafybeiak2c6se7bmttyjwhtsaswmu34a72rrz4gublnc3grnjnqs567wja/year=${year}/month=${month}/${file}`;
 }
 
 const PLOTLY_CONF = {
@@ -108,13 +108,11 @@ function parseRetrievals(text) {
     });
 }
 
-function parseResponseDuration(text) {
+function parseTrafficRatio(text) {
     return d3.csvParseRows(text, (d, i) => {
         return {
             date: new Date(d[0]),
-            p5: +d[2],
-            p50: +d[3],
-            p95: +d[4],
+            ratio: +d[1],
         };
     });
 }
@@ -186,7 +184,6 @@ function plotRetrievals(retrievals_data) {
         x: x,
         y: y,
         type: 'bar',
-        name: "Retrievals"
     }];
 
     const layout = {
@@ -206,6 +203,40 @@ function plotRetrievals(retrievals_data) {
     };
 
     const element = document.getElementById("saturn-retrievals");
+    Plotly.newPlot(element, traces, layout, PLOTLY_CONF);
+}
+
+// Plot paid network traffic ration over time.
+function plotTrafficRatio(traffic_ratio_data) {
+    const x = [], y = [];
+    traffic_ratio_data.forEach((e) => {
+        x.push(e.date);
+        y.push(e.ratio);
+    });
+
+    const traces = [{
+        x: x,
+        y: y,
+    }];
+
+    const layout = {
+        yaxis: {
+            fixedrange: true,
+            title: {
+                text: "Traffic ratio",
+            },
+            tickformat: ".0%",
+        },
+        xaxis: {
+            fixedrange: true
+        },
+        hovermode: 'x unified',
+        legend: {
+            orientation: 'h',
+        },
+    };
+
+    const element = document.getElementById("saturn-traffic-ratio");
     Plotly.newPlot(element, traces, layout, PLOTLY_CONF);
 }
 
@@ -714,6 +745,7 @@ const text = await Promise.all([
     d3.text(dataUrl("/saturn_traffic_by_country.csv")),
     d3.text(dataUrl("/saturn_earnings_by_country.csv")),
     d3.text(dataUrl("/saturn_retrievals.csv")),
+    d3.text(dataUrl("/saturn_traffic_ratio.csv")),
 ]);
 
 const active_node_data = parseActiveNode(text[0]);
@@ -724,6 +756,7 @@ const active_node_by_country_data = parseActiveNodeByCountry(text[4]);
 const traffic_by_country_data = parseTrafficByCountry(text[5]);
 const earnings_by_country_data = parseEarningsByCountry(text[6]);
 const retrievals_data = parseRetrievals(text[7]);
+const traffic_ratio_data = parseTrafficRatio(text[8]);
 
 plotActiveNodeAndTraffic(active_node_data, traffic_data);
 plotRetrievals(retrievals_data);
@@ -733,6 +766,7 @@ plotCountryStats(country_stats_data);
 plotActiveNodeByCountry(active_node_by_country_data, traffic_by_country_data, earnings_by_country_data);
 
 plotActiveNodeWithoutTraffic(active_node_data);
+plotTrafficRatio(traffic_ratio_data);
 plotActiveNodeDistribution(active_node_stats_data);
 
 plotActiveNodeAge(active_node_stats_data);

@@ -3,15 +3,40 @@ CREATE TABLE IF NOT EXISTS saturn_node_creation AS FROM '/inputs/saturn_node_cre
 CREATE TABLE IF NOT EXISTS saturn_node_estimated_earnings AS FROM '/inputs/saturn_node_estimated_earnings.csv.gz';
 CREATE TABLE IF NOT EXISTS saturn_node_bandwidth_served AS FROM '/inputs/saturn_node_bandwidth_served.csv.gz';
 CREATE TABLE IF NOT EXISTS saturn_node_retrievals AS FROM '/inputs/saturn_node_retrievals.csv.gz';
+CREATE TABLE IF NOT EXISTS saturn_node_sent_bytes AS FROM '/inputs/saturn_node_sent_bytes.csv.gz';
+
+
+-- Calculate paid network traffic over time.
+CREATE TEMP VIEW paid_traffic AS
+SELECT
+    observed_at,
+    sum(bandwidth_served_bytes) as paid_bytes
+FROM saturn_node_bandwidth_served
+GROUP BY observed_at;
+
+
+-- Returns paid network traffic ratio over time.
+COPY (
+    WITH total_traffic AS (
+        SELECT
+            observed_at,
+            sum(sent_bytes) as total_bytes
+        FROM saturn_node_sent_bytes
+        GROUP BY observed_at
+    )
+    SELECT
+        observed_at,
+        paid_bytes / total_bytes
+    FROM total_traffic
+    JOIN paid_traffic USING (observed_at)
+    ORDER BY observed_at  -- Ordering is required for deterministic results.
+) TO '/outputs/saturn_traffic_ratio.csv';
 
 
 -- Returns network traffic over time.
 COPY (
-    SELECT
-        observed_at,
-        sum(bandwidth_served_bytes)
-    FROM saturn_node_bandwidth_served
-    GROUP BY observed_at
+    SELECT *
+    FROM paid_traffic
     ORDER BY observed_at -- Ordering is required for deterministic results.
 ) TO '/outputs/saturn_traffic.csv';
 

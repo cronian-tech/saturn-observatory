@@ -37,8 +37,5 @@ web-validate:
 	docker run -it --rm -v `pwd`/web:/web --platform linux/amd64 ghcr.io/validator/validator:23.4.11 \
 		vnu --skip-non-html --Werror /web
 
-clean-vm:
-	docker compose -f moonlet/compose.yaml down -v
-
 clean-duckdb:
 	docker compose -f duckdb/compose.yaml down -v

@@ -73,3 +73,7 @@ python_export 'saturn_node_retrievals' \
 python_export 'saturn_node_estimated_earnings' \
     'increase(saturn_node_estimated_earnings_fil_total)' \
     'observed_at,node_id,estimated_earnings_fil'
+
+python_export 'saturn_node_sent_bytes' \
+    'increase(saturn_node_sent_bytes_total)' \
+    'observed_at,node_id,sent_bytes'

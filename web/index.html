@@ -34,7 +34,7 @@
     <p>
         Raw CSV data that we use to generate the plots are available on IPFS and Filecoin under CID
         <a
-            href="https://gateway.ipfs.io/ipfs/bafybeiewsxrzbdzas7ta42ewnvsig7to7njsicubfykn3w5f5frhofu7nq">bafybeiewsxrzbdzas7ta42ewnvsig7to7njsicubfykn3w5f5frhofu7nq</a>.
+            href="https://gateway.ipfs.io/ipfs/bafybeifmkotlmwf4c55kynudl5uxljmuyyx54gvpjzgxhr2ld564matzdu">bafybeifmkotlmwf4c55kynudl5uxljmuyyx54gvpjzgxhr2ld564matzdu</a>.
     </p>
 
     <p>To learn more about how data is gathered and analyzed, check the project's <a
@@ -129,11 +129,26 @@
         The result is the ratio between nodes without traffic and the active nodes.
     </p>
     <p>
-        Gaps on the chart might be caused by several reasons. Including but not limited to issues with our API scrapper,
-        issues with the orchestrator or the lambda API, or issues with the Saturn network itself.
+        Gaps and spikes on the chart might be caused by several reasons. Including but not limited to issues with our
+        API scrapper, issues with the orchestrator or the lambda API, or issues with the Saturn network itself.
     </p>
 
     <div id="saturn-active-node-without-traffic"></div>
+
+    <h2 id="traffic-ratio">Paid Traffic Ratio</h2>
+    <p>
+        This chart shows the ratio between outgoing Saturn network traffic (considered as "paid") and the total outgoing
+        traffic served by a node. Total outgoing traffic is estimated using network interface stats reported by the <a
+            href="https://orchestrator.strn.pl/stats">orchestrator API</a>. Paid traffic is estimated using the <a
+            href="https://uc2x7t32m6qmbscsljxoauwoae0yeipw.lambda-url.us-west-2.on.aws">lambda
+            API</a> that is used by <a href="https://dashboard.saturn.tech/address/all">Saturn Dashboard</a>.
+    </p>
+    <p>
+        Gaps and spikes on the chart might be caused by several reasons. Including but not limited to issues with our
+        API scrapper, issues with the orchestrator or the lambda API, or issues with the Saturn network itself.
+    </p>
+
+    <div id="saturn-traffic-ratio"></div>
 
     <h2 id="earnings-and-traffic-distribution">Earnings & Traffic Distribution</h2>
     <p>

@@ -2,7 +2,7 @@
 
 The goal of this project is to increase the transparency of 🪐 [Filecoin Saturn](https://saturn.tech) network – the fastest growing, community-run distributed content delivery network (CDN) for Web3.
 
-We use historical data about the network gathered by 🌖 [Saturn Moonlet](https://github.com/31z4/saturn-moonlet) to prepare and publish analytical reports on Saturn Observatory [website](https://observatory.cronian.tech) every month. Raw data that is used to generate the reports [is available](https://gateway.ipfs.io/ipfs/bafybeiewsxrzbdzas7ta42ewnvsig7to7njsicubfykn3w5f5frhofu7nq) on IPFS and Filecoin.
+We use historical data about the network gathered by 🌖 [Saturn Moonlet](https://github.com/31z4/saturn-moonlet) to prepare and publish analytical reports on Saturn Observatory [website](https://observatory.cronian.tech) every month. Raw data that is used to generate the reports [is available](https://gateway.ipfs.io/ipfs/bafybeifmkotlmwf4c55kynudl5uxljmuyyx54gvpjzgxhr2ld564matzdu) on IPFS and Filecoin.
 
 Saturn Observatory compliments official tools like [Saturn Node Dashboard](https://dashboard.saturn.tech) and [Saturn Explorer](https://explorer.saturn.tech), aiming to provide better insights into the network state and performance. To highlight a few:
 
