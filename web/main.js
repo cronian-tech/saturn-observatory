@@ -737,15 +737,15 @@ function plotActiveNodeDistribution(data) {
 
 // Concurrently download all data.
 const text = await Promise.all([
-    d3.text(dataUrl("/saturn_active_node.csv")),
-    d3.text(dataUrl("/saturn_active_node_stats.csv")),
-    d3.text(dataUrl("/saturn_country_stats.csv")),
-    d3.text(dataUrl("/saturn_traffic.csv")),
-    d3.text(dataUrl("/saturn_active_node_by_country.csv")),
-    d3.text(dataUrl("/saturn_traffic_by_country.csv")),
-    d3.text(dataUrl("/saturn_earnings_by_country.csv")),
-    d3.text(dataUrl("/saturn_retrievals.csv")),
-    d3.text(dataUrl("/saturn_traffic_ratio.csv")),
+    d3.text(dataUrl("saturn_active_node.csv")),
+    d3.text(dataUrl("saturn_active_node_stats.csv")),
+    d3.text(dataUrl("saturn_country_stats.csv")),
+    d3.text(dataUrl("saturn_traffic.csv")),
+    d3.text(dataUrl("saturn_active_node_by_country.csv")),
+    d3.text(dataUrl("saturn_traffic_by_country.csv")),
+    d3.text(dataUrl("saturn_earnings_by_country.csv")),
+    d3.text(dataUrl("saturn_retrievals.csv")),
+    d3.text(dataUrl("saturn_traffic_ratio.csv")),
 ]);
 
 const active_node_data = parseActiveNode(text[0]);
