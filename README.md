@@ -2,21 +2,21 @@
 
 The goal of this project is to increase the transparency of 🪐 [Filecoin Saturn](https://saturn.tech) network – the fastest growing, community-run distributed content delivery network (CDN) for Web3.
 
-We use historical data about the network gathered by 🌖 [Saturn Moonlet](https://github.com/31z4/saturn-moonlet) to prepare and publish analytical reports on Saturn Observatory [website](https://observatory.cronian.tech) every month. Raw data that is used to generate the reports [is available](https://gateway.ipfs.io/ipfs/bafybeifmkotlmwf4c55kynudl5uxljmuyyx54gvpjzgxhr2ld564matzdu) on IPFS and Filecoin.
+We use historical data about the network gathered by 🌖 [Saturn Moonlet](https://github.com/cronian-tech/saturn-moonlet) to prepare and publish analytical reports on Saturn Observatory [website](https://observatory.cronian.tech) every month. Raw data that is used to generate the reports [is available](https://gateway.ipfs.io/ipfs/bafybeifmkotlmwf4c55kynudl5uxljmuyyx54gvpjzgxhr2ld564matzdu) on IPFS and Filecoin.
 
 Saturn Observatory compliments official tools like [Saturn Node Dashboard](https://dashboard.saturn.tech) and [Saturn Explorer](https://explorer.saturn.tech), aiming to provide better insights into the network state and performance. To highlight a few:
 
 #### [Network Size & Traffic](https://observatory.cronian.tech/#network-size-and-traffic) shows the number of Saturn nodes and network traffic over time.
 
-<img width="931" alt="image" src="https://github.com/31z4/saturn-observatory/assets/3657959/0d89ae2b-6f8c-4227-a425-e75aa83e5737">
+<img width="931" alt="image" src="https://github.com/cronian-tech/saturn-observatory/assets/3657959/0d89ae2b-6f8c-4227-a425-e75aa83e5737">
 
 #### [Earnings & Traffic by Country](https://observatory.cronian.tech/#earnings-and-traffic-by-country) can help node operators identify saturated (in terms of node count) regions and find the most advantageous geographical locations.
 
-<img width="917" alt="image" src="https://github.com/31z4/saturn-observatory/assets/3657959/2abdeaa8-019f-46c1-bc59-23988102cb21">
+<img width="917" alt="image" src="https://github.com/cronian-tech/saturn-observatory/assets/3657959/2abdeaa8-019f-46c1-bc59-23988102cb21">
 
 #### [Nodes Without Traffic](https://observatory.cronian.tech/#nodes-without-traffic) may highlight issues with network traffic distribution.
 
-<img width="887" alt="image" src="https://github.com/31z4/saturn-observatory/assets/3657959/d09b73d8-b6d3-4040-98c4-fe4146d5eebb">
+<img width="887" alt="image" src="https://github.com/cronian-tech/saturn-observatory/assets/3657959/d09b73d8-b6d3-4040-98c4-fe4146d5eebb">
 
 Head over to Saturn Observatory [website](https://observatory.cronian.tech) to see the full report. If you're curious, you can see [how the project is made](#how-its-made).
 
