@@ -1,3 +1,4 @@
+.DS_Store
 data/
-w3-nodejs/
-snapshot.tar.gz
+web3-storage/w3-nodejs/
+node_modules/
