@@ -1,9 +1,5 @@
 # 🔭 Saturn Observatory
 
-**Saturn Observatory participates in Web 3 Open Source Software Gitcoin Grants program 🎉 Which means that now you can support our efforts to bring better observability tools and increase the transparency of the 🪐Filecoin Saturn network. Every little bit helps!**
-
-🙏 **[Support Saturn Observatory on GitCoin](https://explorer.gitcoin.co/#/round/424/0xd4cc0dd193c7dc1d665ae244ce12d7fab337a008/0xd4cc0dd193c7dc1d665ae244ce12d7fab337a008-137)** 🙏
-
 The goal of this project is to increase the transparency of 🪐 [Filecoin Saturn](https://saturn.tech) network – the fastest growing, community-run distributed content delivery network (CDN) for Web3.
 
 We use historical data about the network gathered by 🌖 [Saturn Moonlet](https://github.com/cronian-tech/saturn-moonlet) to prepare and publish analytical reports on Saturn Observatory [website](https://observatory.cronian.tech) every month. Raw data that is used to generate the reports [is available](https://gateway.ipfs.io/ipfs/bafybeifmkotlmwf4c55kynudl5uxljmuyyx54gvpjzgxhr2ld564matzdu) on IPFS and Filecoin.
