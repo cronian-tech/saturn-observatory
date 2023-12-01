@@ -147,6 +147,7 @@ COPY (
             node_id,
             any_value(created_at) AS created_at
         FROM saturn_node_creation
+        WHERE created_at != 'nan'
         GROUP BY node_id
     ),
     -- For every active node returns its last observed age (in days).
