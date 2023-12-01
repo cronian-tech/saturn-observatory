@@ -10,11 +10,11 @@ if (year === null) {
 }
 let month = params.get('month')
 if (month === null) {
-    month = '10'
+    month = '11'
 }
 
 function dataUrl (file) {
-    return `https://gateway.ipfs.io/ipfs/bafybeiak2c6se7bmttyjwhtsaswmu34a72rrz4gublnc3grnjnqs567wja/year=${year}/month=${month}/${file}`
+    return `https://gateway.ipfs.io/ipfs/bafybeih55tw3hojcxp4u3nwz6su4snco6v5v2e5i4sqvjbma4dfyw2unmy/year=${year}/month=${month}/${file}`
 }
 
 const PLOTLY_CONF = {
