@@ -14,7 +14,7 @@ if (month === null) {
 }
 
 function dataUrl (file) {
-    return `https://gateway.ipfs.io/ipfs/bafybeih55tw3hojcxp4u3nwz6su4snco6v5v2e5i4sqvjbma4dfyw2unmy/year=${year}/month=${month}/${file}`
+    return `outputs/year=${year}/month=${month}/${file}`
 }
 
 const PLOTLY_CONF = {
