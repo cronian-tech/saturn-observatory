@@ -13,8 +13,10 @@ if (month === null) {
     month = '11'
 }
 
+document.querySelector(`a[href="?year=${year}&month=${month}"]`).classList.add('active')
+
 function dataUrl (file) {
-    return `outputs/year=${year}/month=${month}/${file}`
+    return `/outputs/year=${year}/month=${month}/${file}`
 }
 
 const PLOTLY_CONF = {
@@ -760,16 +762,16 @@ const earningsByCountryData = parseEarningsByCountry(text[6])
 const retrievalsData = parseRetrievals(text[7])
 const trafficRatioData = parseTrafficRatio(text[8])
 
-plotActiveNodeAndTraffic(activeNodeData, trafficData)
-plotRetrievals(retrievalsData)
+try { plotActiveNodeAndTraffic(activeNodeData, trafficData) } catch (e) {}
+try { plotRetrievals(retrievalsData) } catch (e) {}
 
-plotActiveNodeOnMap(countryStatsData)
-plotCountryStats(countryStatsData)
-plotActiveNodeByCountry(activeNodeByCountryData, trafficByCountryData, earningsByCountryData)
+try { plotActiveNodeOnMap(countryStatsData) } catch (e) {}
+try { plotCountryStats(countryStatsData) } catch (e) {}
+try { plotActiveNodeByCountry(activeNodeByCountryData, trafficByCountryData, earningsByCountryData) } catch (e) {}
 
-plotActiveNodeWithoutTraffic(activeNodeData)
-plotTrafficRatio(trafficRatioData)
-plotActiveNodeDistribution(activeNodeStatsData)
+try { plotActiveNodeWithoutTraffic(activeNodeData) } catch (e) {}
+try { plotTrafficRatio(trafficRatioData) } catch (e) {}
+try { plotActiveNodeDistribution(activeNodeStatsData) } catch (e) {}
 
-plotActiveNodeAge(activeNodeStatsData)
-plotNodeAgeCorrelation(activeNodeStatsData)
+try { plotActiveNodeAge(activeNodeStatsData) } catch (e) {}
+try { plotNodeAgeCorrelation(activeNodeStatsData) } catch (e) {}

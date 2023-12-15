@@ -1,0 +1,25 @@
+.high {
+	height: 50vh;
+}
+.very-high {
+	height: 100vh;
+}
+
+.hero {
+	background:  no-repeat center/80% url('/static/hero.jpg'), rgb(var(--bs-dark-rgb));
+	height: 300px;
+	color: white;
+	display: flex;
+	justify-content: center;
+	align-items: flex-end;
+	text-align: center;
+	text-shadow: 0 0 5px black;
+}
+
+.hero h1 {
+	color: white;
+}
+
+.nav-timeline {
+	overflow: scroll;
+}
