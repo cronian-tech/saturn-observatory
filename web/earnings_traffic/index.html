@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script defer data-domain="observatory.cronian.tech" src="https://plausible.zanko.dev/js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha256-gvZPYrsDwbwYJLD5yeBfcNujPhRoGOY831wwbIzz3t0=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        integrity="sha256-MBffSnbbXwHCuZtgPYiwMQbfE7z+GOZ7fBPCNB06Z98=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/style.css">
+    <title>Saturn Observatory: insights into Filecoin Saturn state and performance</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">🔭 Saturn Observatory</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/network_size_retrievals">Network Size & Retrievals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/network_geography">Network Geography</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/earnings_traffic">Earnings & Traffic</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/network_age">Network Age</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/tools">Data & Tools</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About & Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="container">
+        <nav class="nav nav-underline flex-nowrap nav-timeline">
+            <p class="nav-link d-none d-md-block">📅</p>
+            <a class="nav-link" href="?year=2023&month=11">November 2023</a>
+            <a class="nav-link" href="?year=2023&month=10">October 2023</a>
+            <a class="nav-link" href="?year=2023&month=09">September 2023</a>
+            <a class="nav-link" href="?year=2023&month=08">August 2023</a>
+        </nav>
+    </section>
+
+    <section class="container px-md-5 mt-md-5">
+
+        <h2 id="nodes-without-traffic">Nodes Without Traffic</h2>
+        <p>
+            This chart shows the percentage of nodes that haven't been receiving any traffic despite being continuously
+            active for a given period. For example, to estimate it for 2 hour period we take all the nodes that were
+            continuously reported as active by the <a href="https://orchestrator.strn.pl/stats">orchestrator API</a>
+            during
+            the
+            past 2 hours. For every node ID in this list, we calculate its traffic for the past 2 hours using the <a
+                href="https://uc2x7t32m6qmbscsljxoauwoae0yeipw.lambda-url.us-west-2.on.aws">lambda
+                API</a> that is used by <a href="https://dashboard.saturn.tech/address/all">Saturn Dashboard</a>.
+            The result is the ratio between nodes without traffic and the active nodes.
+        </p>
+        <p>
+            Gaps and spikes on the chart might be caused by several reasons. Including but not limited to issues with
+            our
+            API scrapper, issues with the orchestrator or the lambda API, or issues with the Saturn network itself.
+        </p>
+
+        <div id="saturn-active-node-without-traffic"></div>
+
+        <h2 id="traffic-ratio">Paid Traffic Ratio</h2>
+        <p>
+            This chart shows the ratio between outgoing Saturn network traffic (considered as "paid") and the total
+            outgoing
+            traffic served by nodes. Total outgoing traffic is estimated using network interface stats reported by the
+            <a href="https://orchestrator.strn.pl/stats">orchestrator API</a>. Paid traffic is estimated using the <a
+                href="https://uc2x7t32m6qmbscsljxoauwoae0yeipw.lambda-url.us-west-2.on.aws">lambda
+                API</a> that is used by <a href="https://dashboard.saturn.tech/address/all">Saturn Dashboard</a>.
+        </p>
+        <p>
+            Gaps and spikes on the chart might be caused by several reasons. Including but not limited to issues with
+            our
+            API scrapper, issues with the orchestrator or the lambda API, or issues with the Saturn network itself.
+        </p>
+
+        <div id="saturn-traffic-ratio"></div>
+
+        <h2 id="earnings-and-traffic-distribution">Earnings & Traffic Distribution</h2>
+        <p>
+            To construct this chart, first, we calculate earnings and traffic for every node that was reported as
+            "active"
+            by the <a href="https://orchestrator.strn.pl/stats">orchestrator API</a> during the month. Earnings and
+            traffic
+            are estimated using info scrapped from the <a
+                href="https://uc2x7t32m6qmbscsljxoauwoae0yeipw.lambda-url.us-west-2.on.aws">lambda
+                API</a> that is used by <a href="https://dashboard.saturn.tech/address/all">Saturn Dashboard</a>. Then
+            we
+            create two lists of node IDs, sorted in descending order. One is sorted by earnings, and another
+            one is sorted by traffic. Now, for each node in each list, we calculate what percentage of the network this
+            node
+            and the nodes above it in the list make up. We plot this value on the X asix. On the Y axis, for each node
+            in
+            each list, we plot the cumulative percentage of earnings and traffic this node and the nodes above it in the
+            list receive.
+        </p>
+        <p>
+            Therefore, we have the chart that shows that X percent of the network receives Y percent of the network's
+            traffic or earnings.
+        </p>
+
+        <div id="saturn-active-node-distribution"></div>
+    </section>
+    <script type="module" src="/static/main.js"></script>
+</body>
+
+</html>
