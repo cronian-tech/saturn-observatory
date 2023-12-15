@@ -1,0 +1,13 @@
+body {
+	max-width: 60rem;
+	margin: 0 auto;
+	padding: 1rem 2rem;
+	font-family: sans-serif;
+}
+
+.high {
+	height: 50vh;
+}
+.very-high {
+	height: 100vh;
+}
