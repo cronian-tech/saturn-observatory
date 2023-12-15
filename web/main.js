@@ -22,9 +22,8 @@ const PLOTLY_CONF = {
     displayModeBar: false,
     scrollZoom: false,
 }
-
-function parseActiveNode (text) {
-    return d3.csvParseRows(text, (d, i) => {
+async function parseActiveNode (text) {
+    return d3.csvParseRows(await text, (d, i) => {
         return {
             date: new Date(d[0]),
             active_count: +d[1],
@@ -40,8 +39,8 @@ function parseActiveNode (text) {
     })
 }
 
-function parseActiveNodeStats (text) {
-    return d3.csvParseRows(text, (d, i) => {
+async function parseActiveNodeStats (text) {
+    return d3.csvParseRows(await text, (d, i) => {
         return {
             id: d[0],
             age_days: +d[1],
@@ -51,8 +50,8 @@ function parseActiveNodeStats (text) {
     })
 }
 
-function parseCountryStats (text) {
-    return d3.csvParseRows(text, (d, i) => {
+async function parseCountryStats (text) {
+    return d3.csvParseRows(await text, (d, i) => {
         return {
             country: d[0],
             active_node_count: +d[1],
@@ -62,8 +61,8 @@ function parseCountryStats (text) {
     })
 }
 
-function parseActiveNodeByCountry (text) {
-    return d3.csvParseRows(text, (d, i) => {
+async function parseActiveNodeByCountry (text) {
+    return d3.csvParseRows(await text, (d, i) => {
         return {
             date: new Date(d[0]),
             country: d[1],
@@ -72,8 +71,8 @@ function parseActiveNodeByCountry (text) {
     })
 }
 
-function parseTrafficByCountry (text) {
-    return d3.csvParseRows(text, (d, i) => {
+async function parseTrafficByCountry (text) {
+    return d3.csvParseRows(await text, (d, i) => {
         return {
             date: new Date(d[0]),
             country: d[1],
@@ -82,8 +81,8 @@ function parseTrafficByCountry (text) {
     })
 }
 
-function parseEarningsByCountry (text) {
-    return d3.csvParseRows(text, (d, i) => {
+async function parseEarningsByCountry (text) {
+    return d3.csvParseRows(await text, (d, i) => {
         return {
             date: new Date(d[0]),
             country: d[1],
@@ -92,8 +91,8 @@ function parseEarningsByCountry (text) {
     })
 }
 
-function parseTraffic (text) {
-    return d3.csvParseRows(text, (d, i) => {
+async function parseTraffic (text) {
+    return d3.csvParseRows(await text, (d, i) => {
         return {
             date: new Date(d[0]),
             traffic: +d[1],
@@ -101,8 +100,8 @@ function parseTraffic (text) {
     })
 }
 
-function parseRetrievals (text) {
-    return d3.csvParseRows(text, (d, i) => {
+async function parseRetrievals (text) {
+    return d3.csvParseRows(await text, (d, i) => {
         return {
             date: new Date(d[0]),
             retrievals: +d[1],
@@ -110,8 +109,8 @@ function parseRetrievals (text) {
     })
 }
 
-function parseTrafficRatio (text) {
-    return d3.csvParseRows(text, (d, i) => {
+async function parseTrafficRatio (text) {
+    return d3.csvParseRows(await text, (d, i) => {
         return {
             date: new Date(d[0]),
             ratio: +d[1],
@@ -119,8 +118,19 @@ function parseTrafficRatio (text) {
     })
 }
 
+
+function createOrUpdateChart (element, traces, layout) {
+    // 1. Use empty chart as placeholder
+    // 2. Assume `react` works faster than `newPlot`
+    if (element.classList.contains('js-plotly-plot')) {
+        Plotly.react(element, traces, layout, PLOTLY_CONF)
+    } else {
+        Plotly.newPlot(element, traces, layout, PLOTLY_CONF)
+    }
+}
+
 // Plot the number of active Saturn nodes and network traffic over time.
-function plotActiveNodeAndTraffic (nodeData, TrafficData) {
+function plotActiveNodeAndTraffic (nodeData, TrafficData, element) {
     const x = []; const y = []
     nodeData.forEach((e) => {
         x.push(e.date)
@@ -170,12 +180,11 @@ function plotActiveNodeAndTraffic (nodeData, TrafficData) {
         },
     }
 
-    const element = document.getElementById('saturn-active-node')
-    Plotly.newPlot(element, traces, layout, PLOTLY_CONF)
+    createOrUpdateChart(element, traces, layout)
 }
 
 // Plot the number of network retrievals over time.
-function plotRetrievals (data) {
+function plotRetrievals (data, element) {
     const x = []; const y = []
     data.forEach((e) => {
         x.push(e.date)
@@ -204,12 +213,11 @@ function plotRetrievals (data) {
         },
     }
 
-    const element = document.getElementById('saturn-retrievals')
-    Plotly.newPlot(element, traces, layout, PLOTLY_CONF)
+    createOrUpdateChart(element, traces, layout)
 }
 
 // Plot paid network traffic ration over time.
-function plotTrafficRatio (data) {
+function plotTrafficRatio (data, element) {
     const x = []; const y = []
     data.forEach((e) => {
         x.push(e.date)
@@ -238,12 +246,11 @@ function plotTrafficRatio (data) {
         },
     }
 
-    const element = document.getElementById('saturn-traffic-ratio')
-    Plotly.newPlot(element, traces, layout, PLOTLY_CONF)
+    createOrUpdateChart(element, traces, layout)
 }
 
 // Plot the number of active Saturn nodes and network traffic by country over time.
-function plotActiveNodeByCountry (nodeData, trafficData, earningsData) {
+function plotActiveNodeByCountry (nodeData, trafficData, earningsData, element) {
     let contries = new Map()
     const newTrace = () => {
         return {
@@ -381,16 +388,15 @@ function plotActiveNodeByCountry (nodeData, trafficData, earningsData) {
         i++
     }
 
-    traces[0].visible = true
-    traces[1].visible = true
-    traces[2].visible = true
+    traces[0] && (traces[0].visible = true)
+    traces[1] && (traces[1].visible = true)
+    traces[2] && (traces[2].visible = true)
 
-    const element = document.getElementById('saturn-active-node-and-traffic')
-    Plotly.newPlot(element, traces, layout, PLOTLY_CONF)
+    createOrUpdateChart(element, traces, layout)
 }
 
 // Plot the percentage of active Saturn nodes that do not receive traffic.
-function plotActiveNodeWithoutTraffic (data) {
+function plotActiveNodeWithoutTraffic (data, element) {
     const x = []; const y2h = []; const y6h = []; const y12h = []; const y24h = []
     data.forEach((e) => {
         x.push(e.date)
@@ -436,12 +442,11 @@ function plotActiveNodeWithoutTraffic (data) {
         },
     }
 
-    const element = document.getElementById('saturn-active-node-without-traffic')
-    Plotly.newPlot(element, traces, layout, PLOTLY_CONF)
+    createOrUpdateChart(element, traces, layout)
 }
 
 // Plot Saturn active node age historgram.
-function plotActiveNodeAge (data) {
+function plotActiveNodeAge (data, element) {
     const x = data.map((e) => e.age_days)
 
     const traces = [{
@@ -465,12 +470,11 @@ function plotActiveNodeAge (data) {
         },
     }
 
-    const element = document.getElementById('saturn-active-node-age')
-    Plotly.newPlot(element, traces, layout, PLOTLY_CONF)
+    createOrUpdateChart(element, traces, layout)
 }
 
 // Plot correlation between node age and earnings and traffic.
-function plotNodeAgeCorrelation (data) {
+function plotNodeAgeCorrelation (data, element) {
     const x = []; const y = []; const y1 = []
 
     data.forEach((e) => {
@@ -529,12 +533,11 @@ function plotNodeAgeCorrelation (data) {
         },
     }
 
-    const element = document.getElementById('saturn-node-age-correlation')
-    Plotly.newPlot(element, traces, layout, PLOTLY_CONF)
+    createOrUpdateChart(element, traces, layout)
 }
 
 // Plot the number of active Saturn nodes on a world map.
-function plotActiveNodeOnMap (data) {
+function plotActiveNodeOnMap (data, element) {
     const locations = []; const z = []; const customdata = []
 
     data.forEach((e) => {
@@ -559,13 +562,11 @@ function plotActiveNodeOnMap (data) {
             ticktext: ['1', '3', '10', '30', '100', '300', '1000', '3500'],
         },
     }]
-
-    const element = document.getElementById('saturn-active-node-world')
-    Plotly.newPlot(element, traces, {}, PLOTLY_CONF)
+    createOrUpdateChart(element, traces, {})
 }
 
 // Plot earnings per node, node count and traffic by country.
-function plotCountryStats (data) {
+export function plotCountryStats (data, element) {
     const stats = data.map((e) => {
         return {
             country: e.country,
@@ -651,13 +652,11 @@ function plotCountryStats (data) {
             orientation: 'h',
         },
     }
-
-    const element = document.getElementById('saturn-country-stats')
-    Plotly.newPlot(element, traces, layout, PLOTLY_CONF)
+    createOrUpdateChart(element, traces, layout)
 }
 
 // Plot earnings and traffic distribution (x percent of nodes receive y percent of traffic).
-function plotActiveNodeDistribution (data) {
+function plotActiveNodeDistribution (data, element) {
     let earningsTotal = 0; let bandwidthTotal = 0
     const earningsData = []; const bandwidthData = []
     data.forEach((e) => {
@@ -733,43 +732,67 @@ function plotActiveNodeDistribution (data) {
         },
     }
 
-    const element = document.getElementById('saturn-active-node-distribution')
-    Plotly.newPlot(element, traces, layout, PLOTLY_CONF)
+    createOrUpdateChart(element, traces, layout)
 }
 
-// Concurrently download all data.
-const text = await Promise.all([
-    d3.text(dataUrl('saturn_active_node.csv')),
-    d3.text(dataUrl('saturn_active_node_stats.csv')),
-    d3.text(dataUrl('saturn_country_stats.csv')),
-    d3.text(dataUrl('saturn_traffic.csv')),
-    d3.text(dataUrl('saturn_active_node_by_country.csv')),
-    d3.text(dataUrl('saturn_traffic_by_country.csv')),
-    d3.text(dataUrl('saturn_earnings_by_country.csv')),
-    d3.text(dataUrl('saturn_retrievals.csv')),
-    d3.text(dataUrl('saturn_traffic_ratio.csv')),
-])
+const chartsMap = {
+    plotActiveNodeAndTraffic,
+    plotRetrievals,
+    plotActiveNodeOnMap,
+    plotCountryStats,
+    plotActiveNodeByCountry,
+    plotActiveNodeWithoutTraffic,
+    plotTrafficRatio,
+    plotActiveNodeDistribution,
+    plotActiveNodeAge,
+    plotNodeAgeCorrelation,
+}
 
-const activeNodeData = parseActiveNode(text[0])
-const activeNodeStatsData = parseActiveNodeStats(text[1])
-const countryStatsData = parseCountryStats(text[2])
-const trafficData = parseTraffic(text[3])
-const activeNodeByCountryData = parseActiveNodeByCountry(text[4])
-const trafficByCountryData = parseTrafficByCountry(text[5])
-const earningsByCountryData = parseEarningsByCountry(text[6])
-const retrievalsData = parseRetrievals(text[7])
-const trafficRatioData = parseTrafficRatio(text[8])
+const dataSetsMap = {
+    activeNodeData: async () => (parseActiveNode(d3.text(dataUrl('saturn_active_node.csv')))),
+    activeNodeStatsData: async () => (parseActiveNodeStats(d3.text(dataUrl('saturn_active_node_stats.csv')))),
+    countryStatsData: async () => (parseCountryStats(d3.text(dataUrl('saturn_country_stats.csv')))),
+    trafficData: async () => (parseTraffic(d3.text(dataUrl('saturn_traffic.csv')))),
+    activeNodeByCountryData: async () => (parseActiveNodeByCountry(d3.text(dataUrl('saturn_active_node_by_country.csv')))),
+    trafficByCountryData: async () => (parseTrafficByCountry(d3.text(dataUrl('saturn_traffic_by_country.csv')))),
+    earningsByCountryData: async () => (parseEarningsByCountry(d3.text(dataUrl('saturn_earnings_by_country.csv')))),
+    retrievalsData: async () => (parseRetrievals(d3.text(dataUrl('saturn_retrievals.csv')))),
+    trafficRatioData: async () => (parseTrafficRatio(d3.text(dataUrl('saturn_traffic_ratio.csv')))),
+}
 
-plotActiveNodeAndTraffic(activeNodeData, trafficData)
-plotRetrievals(retrievalsData)
-
-plotActiveNodeOnMap(countryStatsData)
-plotCountryStats(countryStatsData)
-plotActiveNodeByCountry(activeNodeByCountryData, trafficByCountryData, earningsByCountryData)
-
-plotActiveNodeWithoutTraffic(activeNodeData)
-plotTrafficRatio(trafficRatioData)
-plotActiveNodeDistribution(activeNodeStatsData)
-
-plotActiveNodeAge(activeNodeStatsData)
-plotNodeAgeCorrelation(activeNodeStatsData)
+function setupLazyCharts() {
+    // render empty charts
+    document.querySelectorAll('.js-chart').forEach(async el => {
+        // init with empty plotly chart
+        const chartFn = chartsMap[el.dataset.chart]
+        const dataSets = el.dataset.source.split(',').map(ds => [])
+        chartFn(...dataSets, el)
+    })
+    // add intersection observer
+    const observer = new IntersectionObserver(async (entries, observer) => {
+        entries.forEach(async entry => {
+            if (entry.isIntersecting) {
+                const el = entry.target
+                observer.unobserve(el)
+                const chartFn = chartsMap[el.dataset.chart]
+                const dataSetFns = el.dataset.source.split(',').map(ds => dataSetsMap[ds])
+                const dataSets = await Promise.all(dataSetFns.map(async fn => await fn()))
+                // actually render chart
+                chartFn(...dataSets, el)
+            }
+        })
+    }, {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.5,
+    })
+    document.querySelectorAll('.js-chart').forEach(el => {
+        observer.observe(el)
+    })
+}
+  
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupLazyCharts);
+} else {
+    setupLazyCharts();
+}
