@@ -10,7 +10,7 @@ if (year === null) {
 }
 let month = params.get('month')
 if (month === null) {
-    month = '11'
+    month = '12'
 }
 
 function dataUrl (file) {
