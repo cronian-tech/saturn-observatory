@@ -25,7 +25,7 @@ However, it was built during the [Open Data Hack](https://www.blog.encode.club/o
 
 ## 🛠 How it's made
 
-To create reports we export historical data about the Saturn network from a running [Saturn Moonlet](http://demo.moonlet.zanko.dev) long-term storage into a set of [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) files. We run a bunch of analytical [SQL queries](analytics.sql) against these files and output results into CSVs. Finally, we use the results to generate plots and publish them on the Saturn Observatory website.
+To create reports we export historical data about the Saturn network from a running [Saturn Moonlet](https://moonlet.cronian.tech) long-term storage into a set of [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) files. We run a bunch of analytical [SQL queries](analytics.sql) against these files and output results into CSVs. Finally, we use the results to generate plots and publish them on the Saturn Observatory website.
 
 The following is a more detailed explanation of each step.
 
