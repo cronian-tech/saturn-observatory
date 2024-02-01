@@ -6,11 +6,11 @@ import 'https://cdn.plot.ly/plotly-2.26.0.min.js'
 const params = new URL(window.location.href).searchParams
 let year = params.get('year')
 if (year === null) {
-    year = '2023'
+    year = '2024'
 }
 let month = params.get('month')
 if (month === null) {
-    month = '12'
+    month = '01'
 }
 
 function dataUrl (file) {
