@@ -1,3 +1,5 @@
+**On June 1st, 2024, the Saturn node provider program was concluded.**
+
 # 🔭 Saturn Observatory
 
 The goal of this project is to increase the transparency of 🪐 [Filecoin Saturn](https://saturn.tech) network – the fastest growing, community-run distributed content delivery network (CDN) for Web3.
@@ -29,31 +31,31 @@ To create reports we export historical data about the Saturn network from a runn
 
 The following is a more detailed explanation of each step.
 
-1. Everything starts with exporting Saturn metrics into CSV:
+1.  Everything starts with exporting Saturn metrics into CSV:
 
         EXPORTER_PASSWORD=secret ./moonlet/export-csv.sh 2023-09-01 2023-10-01
 
     This [shell script](moonlet/export-csv.sh) uses VictoriaMetrics export API for some metrics and a small [Python script](moonlet/export.py) for others. This is because we need to apply a rollup function to some metrics (e.g., `increase(saturn_node_retrievals_total)`).
 
-2. Now we have raw CSV data that we upload and pin to IPFS and store on Filecoin using [web3.storage](https://web3.storage):
+2.  Now we have raw CSV data that we upload and pin to IPFS and store on Filecoin using [web3.storage](https://web3.storage):
 
         make web3-storage-upload-inputs
 
     Before running this command for the first time, we need to set our web3.storage token: `make web3-storage-token`.
 
-3. To perform the actual analysis we run a [Bacalhau]() job that uses [DuckDB]() to execute a bunch of [SQL queries](analytics.sql) on the input CSV data that we previously pinned to IPFS:
+3.  To perform the actual analysis we run a [Bacalhau]() job that uses [DuckDB]() to execute a bunch of [SQL queries](analytics.sql) on the input CSV data that we previously pinned to IPFS:
 
         make bacalhau-analytics cid=bafybeiarymtc6w32n2ud6w27vbhjqf2seax65l2rrfsfyucxc4gjutugni
 
     We wanted to use [Lilypad](https://docs.lilypadnetwork.org) to run the analysis and made a couple of PRs ([one](https://github.com/bacalhau-project/lilypad-modicum/pull/80), [two](https://github.com/bacalhau-project/lilypad-docs/pull/9), [three](https://github.com/31z4/lilypad-duckdb)) with a custom DuckDB module. But, by the time of writing the module is not yet available on Lilypad testnet. This was mostly blocked on Lilypad's team.
 
-4. Once the Bacalhau job finishes we download its results and make sure that these results are adequate (check for outliers, empty values, compare with the previous month, etc.). Then store the results in IPFS and Filecoin using web3.storage:
+4.  Once the Bacalhau job finishes we download its results and make sure that these results are adequate (check for outliers, empty values, compare with the previous month, etc.). Then store the results in IPFS and Filecoin using web3.storage:
 
         make web3-storage-upload-outputs
 
-5. Finally, we plug the CID that we get from the previous step into `dataUrl` function of [`web/main.js`](web/main.js). We commit and push this change to the project's repo and the Saturn Observatory website gets published using GitHub pages.
+5.  Finally, we plug the CID that we get from the previous step into `dataUrl` function of [`web/main.js`](web/main.js). We commit and push this change to the project's repo and the Saturn Observatory website gets published using GitHub pages.
 
-6. When you open the Saturn Observatory website, CSV data from step 4 is fetched using the [Saturn browser client](https://github.com/filecoin-saturn/browser-client) and then plotted using [PlotlyJS](https://plotly.com/javascript).
+6.  When you open the Saturn Observatory website, CSV data from step 4 is fetched using the [Saturn browser client](https://github.com/filecoin-saturn/browser-client) and then plotted using [PlotlyJS](https://plotly.com/javascript).
 
 ## License
 
